@@ -1,4 +1,6 @@
-# pong
+# Pyong
+## Fork of 'pong' at [Building a 2D game with Flutter](https://blog.logrocket.com/building-2d-game-flutter/)
+
 
 A new Flutter project.
 
