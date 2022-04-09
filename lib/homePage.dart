@@ -7,23 +7,26 @@ import 'package:pong/brick.dart';
 import 'package:pong/welcomeScreen.dart';
 
 class HomePage extends StatefulWidget {
-
   @override
-  _HomePageState createState() => _HomePageState();
+  State<StatefulWidget> createState() => _HomePageState();
 }
 
 enum direction { UP, DOWN, LEFT, RIGHT }
 
 class _HomePageState extends State<HomePage> {
-
   //LOGIC
-  //player variations
-  double playerX =  -0.2;
+  // common params:
   double brickWidth = 0.4;
+
+  //player variations
+  double playerX = -0.2;
   int playerScore = 0;
+  double moveLR = 0.3; // move length of moveLeft and moveRight
+
   // enemy variable
   double enemyX = -0.2;
- int enemyScore = 0;
+  int enemyScore = 0;
+
   //ball
   double ballx = 0;
   double bally = 0;
@@ -46,7 +49,7 @@ class _HomePageState extends State<HomePage> {
         _showDialog(false);
         // resetGame();
       }
-       if (isEnemyDead()) {
+      if (isEnemyDead()) {
         playerScore++;
         timer.cancel();
         _showDialog(true);
@@ -54,7 +57,8 @@ class _HomePageState extends State<HomePage> {
       }
     });
   }
-  bool isEnemyDead(){
+
+  bool isEnemyDead() {
     if (bally <= -1) {
       return true;
     }
@@ -80,7 +84,7 @@ class _HomePageState extends State<HomePage> {
             backgroundColor: Colors.purple,
             title: Center(
               child: Text(
-               enemyDied?"Pink Wins": "Purple Wins",
+                enemyDied ? "Pink Wins" : "Purple Wins",
                 style: TextStyle(color: Colors.white),
               ),
             ),
@@ -94,7 +98,10 @@ class _HomePageState extends State<HomePage> {
                       color: Colors.purple[100],
                       child: Text(
                         "Play Again",
-                        style: TextStyle(color:enemyDied?Colors.pink[300]: Colors.purple[000]),
+                        style: TextStyle(
+                            color: enemyDied
+                                ? Colors.pink[300]
+                                : Colors.purple[000]),
                       )),
                 ),
               )
@@ -110,7 +117,7 @@ class _HomePageState extends State<HomePage> {
       ballx = 0;
       bally = 0;
       playerX = -0.2;
-      enemyX =- 0.2;
+      enemyX = -0.2;
     });
   }
 
@@ -124,13 +131,13 @@ class _HomePageState extends State<HomePage> {
   void updatedDirection() {
     setState(() {
       //update vertical dirction
-      if (bally >= 0.9 && playerX + brickWidth>= ballx && playerX  <= ballx) {
+      if (bally >= 0.9 && playerX + brickWidth >= ballx && playerX <= ballx) {
         ballYDirection = direction.UP;
       } else if (bally <= -0.9) {
         ballYDirection = direction.DOWN;
       }
       // ipdate horizontal directions
-     if (ballx >= 1) {
+      if (ballx >= 1) {
         ballXDirection = direction.LEFT;
       } else if (ballx <= -1) {
         ballXDirection = direction.RIGHT;
@@ -159,15 +166,15 @@ class _HomePageState extends State<HomePage> {
 
   void moveLeft() {
     setState(() {
-      if (!(playerX - 0.1 <= -1)) {
-        playerX -= 0.1;
+      if (!(playerX - moveLR <= -1)) {
+        playerX -= moveLR;
       }
     });
   }
 
   void moveRight() {
     if (!(playerX + brickWidth >= 1)) {
-      playerX += 0.1;
+      playerX += moveLR;
     }
   }
 
@@ -195,14 +202,13 @@ class _HomePageState extends State<HomePage> {
                 //top brick
                 Brick(enemyX, -0.9, brickWidth, true),
                 //scoreboard
-                Score(gameStarted,enemyScore,playerScore),
+                Score(gameStarted, enemyScore, playerScore),
                 // ball
                 Ball(ballx, bally),
                 // //bottom brick
                 Brick(playerX, 0.9, brickWidth, false)
               ],
             ))),
-
       ),
     );
   }
@@ -212,30 +218,36 @@ class Score extends StatelessWidget {
   final gameStarted;
   final enemyScore;
   final playerScore;
-  Score(this.gameStarted, this.enemyScore,this.playerScore, );
+  Score(
+    this.gameStarted,
+    this.enemyScore,
+    this.playerScore,
+  );
 
   @override
   Widget build(BuildContext context) {
-    return gameStarted? Stack(children: [
-      Container(
-          alignment: Alignment(0, 0),
-          child: Container(
-            height: 1,
-            width: MediaQuery.of(context).size.width / 3,
-            color: Colors.grey[800],
-          )),
-      Container(
-          alignment: Alignment(0, -0.3),
-          child: Text(
-            enemyScore.toString(),
-            style: TextStyle(color: Colors.grey[800], fontSize: 100),
-          )),
-      Container(
-          alignment: Alignment(0, 0.3),
-          child: Text(
-            playerScore.toString(),
-            style: TextStyle(color: Colors.grey[800], fontSize: 100),
-          )),
-    ]): Container();
+    return gameStarted
+        ? Stack(children: [
+            Container(
+                alignment: Alignment(0, 0),
+                child: Container(
+                  height: 1,
+                  width: MediaQuery.of(context).size.width / 3,
+                  color: Colors.grey[800],
+                )),
+            Container(
+                alignment: Alignment(0, -0.3),
+                child: Text(
+                  enemyScore.toString(),
+                  style: TextStyle(color: Colors.grey[800], fontSize: 100),
+                )),
+            Container(
+                alignment: Alignment(0, 0.3),
+                child: Text(
+                  playerScore.toString(),
+                  style: TextStyle(color: Colors.grey[800], fontSize: 100),
+                )),
+          ])
+        : Container();
   }
 }
