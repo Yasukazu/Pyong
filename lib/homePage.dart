@@ -16,12 +16,12 @@ enum direction { UP, DOWN, LEFT, RIGHT }
 class _HomePageState extends State<HomePage> {
   //LOGIC
   // common params:
-  double brickWidth = 0.4;
+  double brickWidth = 0.5;
 
   //player variations
   double playerX = -0.2;
   int playerScore = 0;
-  double moveLR = 0.3; // move length of moveLeft and moveRight
+  double moveLR = 0.2; // move length of moveLeft and moveRight
 
   // enemy variable
   double enemyX = -0.2;
@@ -130,16 +130,18 @@ class _HomePageState extends State<HomePage> {
 
   void updatedDirection() {
     setState(() {
-      //update vertical dirction
-      if (bally >= 0.9 && playerX + brickWidth >= ballx && playerX <= ballx) {
+      //update vertical dirction / collision detection with playerX
+      if (bally >= 0.9 && (ballx >= playerX && ballx <= playerX + brickWidth )) {
         ballYDirection = direction.UP;
-      } else if (bally <= -0.9) {
+      }
+      else if (bally <= -0.9 && (ballx >= enemyX && ballx <= enemyX + brickWidth)) {
         ballYDirection = direction.DOWN;
       }
-      // ipdate horizontal directions
+      // update horizontal directions
       if (ballx >= 1) {
         ballXDirection = direction.LEFT;
-      } else if (ballx <= -1) {
+      }
+      else if (ballx <= -1) {
         ballXDirection = direction.RIGHT;
       }
     });
