@@ -12,20 +12,33 @@ class HomePage extends StatefulWidget {
 }
 
 enum direction { UP, DOWN, LEFT, RIGHT }
+enum player { SELF, OPPO }
+
+// Player class
+class Player {
+  double x; // paddle
+  final double y;
+  int score;
+  final Color color;
+  Player(this.x, this.y, this.score, this.color);
+}
 
 class _HomePageState extends State<HomePage> {
   //LOGIC
   // common params:
-  double brickWidth = 0.5;
+  final brickWidth = 0.5;
+  final moveLR = 0.2; // move length of moveLeft and moveRight
 
   //player variations
   double playerX = -0.2;
   int playerScore = 0;
-  double moveLR = 0.2; // move length of moveLeft and moveRight
+  final Player selfPlayer = Player(-0.2, -0.9, 0, Colors.pink.shade300);
+  //            color: isEnemy ? Colors.purple[500] : Colors.pink[300],
 
   // enemy variable
   double enemyX = -0.2;
   int enemyScore = 0;
+  final Player enemyPlayer = Player(-0.2, 0.9, 0, Colors.purple.shade500);
 
   //ball
   double ballx = 0;
@@ -33,7 +46,7 @@ class _HomePageState extends State<HomePage> {
 
   var ballYDirection = direction.DOWN;
   var ballXDirection = direction.RIGHT;
-  bool gameStarted = false;
+  var gameStarted = false;
   void startGame() {
     gameStarted = true;
     Timer.periodic(Duration(milliseconds: 1), (timer) {
@@ -66,8 +79,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   void moveEnemy() {
-    setState(() {
-      enemyX = ballx;
+    final lastPos = ballx;
+    Future.delayed(Duration(milliseconds: 300), () { // delay on reaction
+      setState(() {
+        enemyX = lastPos + (ballXDirection == direction.LEFT ? -0.2 : 0.2); // compensate delay
+      });
     });
   }
 
