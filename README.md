@@ -3,8 +3,7 @@
 
 ## Game logic / game loop:
 ### Issues:
-  1. Enemy is invincible.
-  2. Paddle width won't change by Hot Reload.
+  - Paddle width won't change by Hot Reload.
 
 
 ## References:
