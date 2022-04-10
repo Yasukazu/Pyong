@@ -2,10 +2,9 @@
 ## Fork of 'pong' at [Building a 2D game with Flutter](https://blog.logrocket.com/building-2d-game-flutter/)
 
 ## Game logic / game loop:
-### Problems:
-  - Enemy is invincible.
-  - Left unreachable area of player puddle.
-  - Paddle width no change with Hot Reload.
+### Issues:
+  1. Enemy is invincible.
+  2. Paddle width won't change by Hot Reload.
 
 
 ## References:
