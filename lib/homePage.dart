@@ -131,17 +131,16 @@ class _HomePageState extends State<HomePage> {
   void updatedDirection() {
     setState(() {
       //update vertical dirction / collision detection with playerX
-      if (bally >= 0.9 && (ballx >= playerX && ballx <= playerX + brickWidth )) {
+      if (bally >= 0.9 && (ballx >= playerX && ballx <= playerX + brickWidth)) {
         ballYDirection = direction.UP;
-      }
-      else if (bally <= -0.9 && (ballx >= enemyX && ballx <= enemyX + brickWidth)) {
+      } else if (bally <= -0.9 &&
+          (ballx >= enemyX && ballx <= enemyX + brickWidth)) {
         ballYDirection = direction.DOWN;
       }
       // update horizontal directions
       if (ballx >= 1) {
         ballXDirection = direction.LEFT;
-      }
-      else if (ballx <= -1) {
+      } else if (ballx <= -1) {
         ballXDirection = direction.RIGHT;
       }
     });
@@ -168,15 +167,19 @@ class _HomePageState extends State<HomePage> {
 
   void moveLeft() {
     setState(() {
-      if (!(playerX - moveLR <= -1)) {
+      if (!(playerX - moveLR < -1)) {
         playerX -= moveLR;
+      } else {
+        playerX = -1;
       }
     });
   }
 
   void moveRight() {
-    if (!(playerX + brickWidth >= 1)) {
+    if (!(playerX + brickWidth > 1)) {
       playerX += moveLR;
+    } else {
+      playerX = 1 - brickWidth;
     }
   }
 
