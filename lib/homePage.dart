@@ -12,15 +12,21 @@ class HomePage extends StatefulWidget {
 }
 
 enum direction { UP, DOWN, LEFT, RIGHT }
-enum player { SELF, OPPO }
+enum players { SELF, ENEMY }
+
+class PlayerColor {
+  static Color get self => Colors.pink;
+  static Color get enemy => Colors.purple;
+}
 
 // Player class
 class Player {
-  double x; // paddle
+  var x = -0.2; // starting horizontal position
   final double y;
-  int score;
+  var score = 0;
   final Color color;
-  Player(this.x, this.y, this.score, this.color);
+  var diff = 0.0; // keep lost ball reach
+  Player(this.y, this.color);
 }
 
 class _HomePageState extends State<HomePage> {
@@ -28,17 +34,20 @@ class _HomePageState extends State<HomePage> {
   // common params:
   final brickWidth = 0.5;
   final moveLR = 0.2; // move length of moveLeft and moveRight
-
+  final awayToHomeTime = 1000.0; // miliseconds
+  final timerRep = 20.0; // ms
+  double get ballMoveD => timerRep / awayToHomeTime;
   //player variations
-  double playerX = -0.2;
+  // double playerX = -0.2;
   int playerScore = 0;
-  final Player selfPlayer = Player(-0.2, -0.9, 0, Colors.pink.shade300);
-  //            color: isEnemy ? Colors.purple[500] : Colors.pink[300],
+  final Player selfPlayer =
+      Player(-0.9, PlayerColor.self); // Colors.pink.shade300);
 
   // enemy variable
-  double enemyX = -0.2;
+  // double enemyX = -0.2;
   int enemyScore = 0;
-  final Player enemyPlayer = Player(-0.2, 0.9, 0, Colors.purple.shade500);
+  final Player enemyPlayer =
+      Player(0.9, PlayerColor.enemy); // Colors.purple.shade500);
 
   //ball
   double ballx = 0;
@@ -49,7 +58,7 @@ class _HomePageState extends State<HomePage> {
   var gameStarted = false;
   void startGame() {
     gameStarted = true;
-    Timer.periodic(Duration(milliseconds: 1), (timer) {
+    Timer.periodic(Duration(milliseconds: 20), (timer) {
       updatedDirection();
 
       moveBall();
@@ -64,6 +73,8 @@ class _HomePageState extends State<HomePage> {
       }
       if (isEnemyDead()) {
         playerScore++;
+        enemyPlayer.diff = (ballx - enemyPlayer.x).abs();
+        print(enemyPlayer.diff);
         timer.cancel();
         _showDialog(true);
         // resetGame();
@@ -79,10 +90,15 @@ class _HomePageState extends State<HomePage> {
   }
 
   void moveEnemy() {
+    const k = 1.5;
     final lastPos = ballx;
-    Future.delayed(Duration(milliseconds: 300), () { // delay on reaction
+    Future.delayed(Duration(milliseconds: 250), () {
+      // delay on reaction
       setState(() {
-        enemyX = lastPos + (ballXDirection == direction.LEFT ? -0.2 : 0.2); // compensate delay
+        enemyPlayer.x = lastPos +
+            (ballXDirection == direction.LEFT
+                ? -(enemyPlayer.diff * k)
+                : enemyPlayer.diff * k); // compensate delay
       });
     });
   }
@@ -100,7 +116,7 @@ class _HomePageState extends State<HomePage> {
             backgroundColor: Colors.purple,
             title: Center(
               child: Text(
-                enemyDied ? "Pink Wins" : "Purple Wins",
+                enemyDied ? "You win." : "Opponent win.",
                 style: TextStyle(color: Colors.white),
               ),
             ),
@@ -132,8 +148,8 @@ class _HomePageState extends State<HomePage> {
       gameStarted = false;
       ballx = 0;
       bally = 0;
-      playerX = -0.2;
-      enemyX = -0.2;
+      selfPlayer.x = -0.2;
+      enemyPlayer.x = -0.2;
     });
   }
 
@@ -146,11 +162,12 @@ class _HomePageState extends State<HomePage> {
 
   void updatedDirection() {
     setState(() {
-      //update vertical dirction / collision detection with playerX
-      if (bally >= 0.9 && (ballx >= playerX && ballx <= playerX + brickWidth)) {
+      //update vertical dirction / collision detection with selfPlayer.x
+      if (bally >= 0.9 &&
+          (ballx >= selfPlayer.x && ballx <= selfPlayer.x + brickWidth)) {
         ballYDirection = direction.UP;
       } else if (bally <= -0.9 &&
-          (ballx >= enemyX && ballx <= enemyX + brickWidth)) {
+          (ballx >= enemyPlayer.x && ballx <= enemyPlayer.x + brickWidth)) {
         ballYDirection = direction.DOWN;
       }
       // update horizontal directions
@@ -166,36 +183,36 @@ class _HomePageState extends State<HomePage> {
     //vertical movement
     setState(() {
       if (ballYDirection == direction.DOWN) {
-        bally += 0.01;
+        bally += ballMoveD;
       } else if (ballYDirection == direction.UP) {
-        bally -= 0.01;
+        bally -= ballMoveD;
       }
     });
     //horizontal movement
     setState(() {
       if (ballXDirection == direction.LEFT) {
-        ballx -= 0.01;
+        ballx -= ballMoveD;
       } else if (ballXDirection == direction.RIGHT) {
-        ballx += 0.01;
+        ballx += ballMoveD;
       }
     });
   }
 
   void moveLeft() {
     setState(() {
-      if (!(playerX - moveLR < -1)) {
-        playerX -= moveLR;
+      if (!(selfPlayer.x - moveLR < -1)) {
+        selfPlayer.x -= moveLR;
       } else {
-        playerX = -1;
+        selfPlayer.x = -1;
       }
     });
   }
 
   void moveRight() {
-    if (!(playerX + brickWidth > 1)) {
-      playerX += moveLR;
+    if (!(selfPlayer.x + brickWidth > 1)) {
+      selfPlayer.x += moveLR;
     } else {
-      playerX = 1 - brickWidth;
+      selfPlayer.x = 1 - brickWidth;
     }
   }
 
@@ -220,14 +237,14 @@ class _HomePageState extends State<HomePage> {
               children: [
                 Welcome(gameStarted),
 
-                //top brick
-                Brick(enemyX, -0.9, brickWidth, true),
+                //enemy brick on top
+                Brick(enemyPlayer.x, -0.9, brickWidth, PlayerColor.enemy),
                 //scoreboard
                 Score(gameStarted, enemyScore, playerScore),
                 // ball
                 Ball(ballx, bally),
-                // //bottom brick
-                Brick(playerX, 0.9, brickWidth, false)
+                // self brick on bottom 
+                Brick(selfPlayer.x, 0.9, brickWidth, PlayerColor.self)
               ],
             ))),
       ),
@@ -236,9 +253,9 @@ class _HomePageState extends State<HomePage> {
 }
 
 class Score extends StatelessWidget {
-  final gameStarted;
-  final enemyScore;
-  final playerScore;
+  final bool gameStarted;
+  final int enemyScore;
+  final int playerScore;
   Score(
     this.gameStarted,
     this.enemyScore,
