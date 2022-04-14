@@ -34,8 +34,8 @@ class _HomePageState extends State<HomePage> {
   // common params:
   final brickWidth = 0.5;
   final moveLR = 0.2; // move length of moveLeft and moveRight
-  final awayToHomeTime = 1000.0; // miliseconds
-  final timerRep = 20.0; // ms
+  int awayToHomeTime = 1000; // miliseconds
+  final timerRep = 20; // ms
   double get ballMoveD => timerRep / awayToHomeTime;
   //player variations
   // double playerX = -0.2;
@@ -52,7 +52,7 @@ class _HomePageState extends State<HomePage> {
   //ball
   double ballx = 0;
   double bally = 0;
-
+  var ballPos = BallPos(0, 0);
   var ballYDirection = direction.DOWN;
   var ballXDirection = direction.RIGHT;
   var gameStarted = false;
