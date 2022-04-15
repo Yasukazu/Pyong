@@ -23,6 +23,8 @@ class Ball extends StatelessWidget {
 class BallPos {
   double get x => _bx.x;
   double get y => _by.x;
+  double get dx => _bx.d;
+  double get dy => _by.d;
   final Bouncer _bx;
   final Bouncer _by;
 

@@ -60,7 +60,7 @@ class _HomePageState extends State<HomePage> {
   void startGame() {
     gameStarted = true;
     final int divider = awayToHomeTime ~/ timerRep; // divide to get an integer
-    double angle = 30;
+    double angle = 40;
     ballPos = BallPos.withAngleDivider(angle, divider); // degree
     Timer.periodic(Duration(milliseconds: timerRep), (timer) {
       var xy = ballPos.step();
@@ -69,8 +69,8 @@ class _HomePageState extends State<HomePage> {
         print('$e, ');
       });
       setState(() {
-        ballx = xy[0];
-        bally = xy[1];
+        ballx = ballPos.x;
+        bally = ballPos.y;
       });
 
       moveEnemy();
