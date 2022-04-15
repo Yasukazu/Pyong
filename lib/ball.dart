@@ -26,19 +26,20 @@ class BallPos {
   final Bouncer _dx;
   final Bouncer _dy;
 
-  BallPos(double x, double y) :
-    _dx = Bouncer(x),
-    _dy = Bouncer(y);
+  BallPos(double x, double y)
+      : _dx = Bouncer(x),
+        _dy = Bouncer(y);
 
   // angle[degree]
-  BallPos.withAngleDivider(double angle, int divider) :
-    _dy = Bouncer(1 / divider), 
-    _dx = Bouncer(tan(angle / 360 * 2 * 3.14) / divider)
-  ;
-  
-  void step() {
+  BallPos.withAngleDivider(double angle, int divider)
+      : _dy = Bouncer(1 / divider),
+        _dx = Bouncer(tan(angle / 360 * 2 * 3.14) / divider);
+
+  /// return: [x, y]
+  List<double> step() {
     _dx.step();
     _dy.step();
+    return [x, y];
   }
 }
 
@@ -50,7 +51,9 @@ class Bouncer {
 
   Bouncer(this._d);
 
-  void step() {
+  /// return: step amount (inc/dec)
+  double step() {
+    var oldX = _x;
     var a = _x + _d;
     if (a < -1) {
       _x = -a - 2;
@@ -61,5 +64,6 @@ class Bouncer {
     } else {
       _x = a;
     }
+    return _x - oldX;
   }
 }

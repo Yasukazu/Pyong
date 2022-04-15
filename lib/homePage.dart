@@ -52,7 +52,7 @@ class _HomePageState extends State<HomePage> {
   //ball
   double ballx = 0;
   double bally = 0;
-  var ballPos = BallPos(0, 0);
+  BallPos ballPos = BallPos.withAngleDivider(30, 20);
   var ballYDirection = direction.DOWN;
   var ballXDirection = direction.RIGHT;
   var gameStarted = false;
@@ -162,7 +162,7 @@ class _HomePageState extends State<HomePage> {
 
   void updatedDirection() {
     setState(() {
-      //update vertical dirction / collision detection with selfPlayer.x
+      //update vertical direction / collision detection with selfPlayer.x
       if (bally >= 0.9 &&
           (ballx >= selfPlayer.x && ballx <= selfPlayer.x + brickWidth)) {
         ballYDirection = direction.UP;
