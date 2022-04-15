@@ -21,24 +21,24 @@ class Ball extends StatelessWidget {
 
 // x and y both keep between -1 and 1
 class BallPos {
-  double get x => _dx.x;
-  double get y => _dy.x;
-  final Bouncer _dx;
-  final Bouncer _dy;
+  double get x => _bx.x;
+  double get y => _by.x;
+  final Bouncer _bx;
+  final Bouncer _by;
 
   BallPos(double x, double y)
-      : _dx = Bouncer(x),
-        _dy = Bouncer(y);
+      : _bx = Bouncer(x),
+        _by = Bouncer(y);
 
   // angle[degree]
   BallPos.withAngleDivider(double angle, int divider)
-      : _dy = Bouncer(1 / divider),
-        _dx = Bouncer(tan(angle / 360 * 2 * 3.14) / divider);
+      : _by = Bouncer(1 / divider),
+        _bx = Bouncer(tan(angle / 360 * 2 * 3.14) / divider);
 
   /// return: [x, y]
   List<double> step() {
-    _dx.step();
-    _dy.step();
+    _bx.step();
+    _by.step();
     return [x, y];
   }
 }
@@ -48,6 +48,7 @@ class Bouncer {
   var _x = 0.0;
   double _d;
   double get x => _x;
+  double get d => _d;
 
   Bouncer(this._d);
 
