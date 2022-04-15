@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'dart:math';
 
 class Ball extends StatelessWidget {
   final x;
@@ -29,6 +30,12 @@ class BallPos {
     _dx = Bouncer(x),
     _dy = Bouncer(y);
 
+  // angle[degree]
+  BallPos.withAngleDivider(double angle, int divider) :
+    _dy = Bouncer(1 / divider), 
+    _dx = Bouncer(tan(angle / 360 * 2 * 3.14) / divider)
+  ;
+  
   void step() {
     _dx.step();
     _dy.step();
