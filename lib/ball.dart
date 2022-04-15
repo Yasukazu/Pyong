@@ -18,31 +18,20 @@ class Ball extends StatelessWidget {
   }
 }
 
-// keeps between -1 and 1
+// x and y both keep between -1 and 1
 class BallPos {
-  var _x = 0.0;
-  final double dx;
-  bool _xR = false;
-  double get x => _x;
-  var _y = 0.0;
-  final double dy;
-  bool _yR = false;
-  double get y => _y;
+  double get x => _dx.x;
+  double get y => _dy.x;
+  final Bouncer _dx;
+  final Bouncer _dy;
 
-  BallPos(this.dx, this.dy);
-
-  void reverseX() => _xR = !_xR;
-
-  void reverseY() => _yR = !_yR;
+  BallPos(double x, double y) :
+    _dx = Bouncer(x),
+    _dy = Bouncer(y);
 
   void step() {
-    var ax = _x + dx;
-    if (ax > 1) {
-      _x = 2 - ax; // 1 - (ax - 1);
-      _xR = !_xR;
-    } else if (ax < 1) {}
-    _x += _xR ? -dx : dx;
-    _y += _yR ? -dy : dy;
+    _dx.step();
+    _dy.step();
   }
 }
 
