@@ -34,10 +34,10 @@ class BallPos {
       : _bX = Bouncer(x, wall: xf),
         _bY = Bouncer(y, wall: yf);
 
-  // angle[degree]
+  // angle[radian]
   BallPos.withAngleDivider(double angle, int divider, {xf = 1.0, yf = 1.0})
       : _bY = Bouncer(1 / divider, wall: yf),
-        _bX = Bouncer(tan(angle / 360 * 2 * pi) / divider, wall: xf);
+        _bX = Bouncer(tan(angle) / divider, wall: xf);
 
   /// return: [x._neg, y._neg]
   List<bool?> step() {
