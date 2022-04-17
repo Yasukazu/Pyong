@@ -21,28 +21,32 @@ class Ball extends StatelessWidget {
 
 // x and y both keep between -1 and 1
 class BallPos {
-  double get x => _bX.x;
-  double get y => _bY.x;
-  double get dx => _bX.d;
-  double get dy => _bY.d;
-  // double get xf => _bX.wall;
-  // double get yf => _bY.wall;
-  final Bouncer _bX;
-  final Bouncer _bY;
+  double get x => bX.x;
+  double get y => bY.x;
+  double get dx => bX.d;
+  double get dy => bY.d;
+  // double get xf => bX.wall;
+  // double get yf => bY.wall;
+  final Bouncer bX;
+  final Bouncer bY;
 
   BallPos(double x, double y, {xf = 1.0, yf = 1.0})
-      : _bX = Bouncer(x, wall: xf),
-        _bY = Bouncer(y, wall: yf);
+      : bX = Bouncer(x, wall: xf),
+        bY = Bouncer(y, wall: yf);
 
   // angle[radian]
   BallPos.withAngleDivider(double angle, int divider, {xf = 1.0, yf = 1.0})
-      : _bY = Bouncer(1 / divider, wall: yf),
-        _bX = Bouncer(tan(angle) / divider, wall: xf);
+      : bY = Bouncer(1 / divider, wall: yf),
+        bX = Bouncer(tan(angle) / divider, wall: xf);
+
+  BallPos.withBouncers(Bouncer xB, Bouncer yB)
+      : bY = yB,
+        bX = xB;
 
   /// return: [x._neg, y._neg]
   List<stepResult> step() {
-    var x = _bX.step();
-    var y = _bY.step();
+    var x = bX.step();
+    var y = bY.step();
     return [x, y];
   }
 
@@ -50,26 +54,22 @@ class BallPos {
 
   static arrivalXFromAway(double ballAngle) {}
 }
-  enum stepResult {
-    bounceUp,
-    bounceDown,
-    noBounce
-  }
+
+enum stepResult { bounceUp, bounceDown, noBounce }
+
 // between -wall and wall bouncing number
 class Bouncer {
   double _x;
   //double _d;
-  final double e;
+  final double _e;
   bool _neg;
   final double wall;
   double get x => _x;
-  double get d => _neg ? -e : e;
-
-
+  double get d => _neg ? -_e : _e;
 
   /// wall > 0
   Bouncer(d, {x = 0.0, wall = 1})
-      : this.e = d.abs(),
+      : this._e = d.abs(),
         _neg = d < 0,
         _x = x,
         this.wall = wall;

@@ -26,16 +26,23 @@ class SelfPlayer extends Player {
 class EnemyPlayer extends Player {
   EnemyPlayer() : super(-Player.FROMCENTER, PlayerColor.enemy);
 
-  double calcBallArrivalFromCenter(BallPos bp) =>
-      y * bp.dx / bp.dy;
+  double calcBallArrivalFromCenter(BallPos bp) => y * bp.dx / bp.dy;
 
-  double calcBallArrivalFromAway(BallPos bp, 
-      {centerToSideWall = 1.0}) {
-    final a = bp.x + 2 * y * bp.dyx/ bp.dy;
+  double calcBallArrivalFromAway(BallPos bp, {centerToSideWall = 1.0}) {
+    final a = bp.x + 2 * y * bp.dx / bp.dy;
     if (a <= centerToSideWall)
       return a;
     else {
-      return 2 * centerToSideWall - a - bp.x;
+      return 2 * centerToSideWall - a;
     }
+  }
+
+  double simulateBallArrival(BallPos bp, {centerToSideWall = 1.0}) {
+    Bouncer bX = Bouncer(bp.dx, x: bp.x, wall: bp.bX.wall);
+    Bouncer bY = Bouncer(bp.dy, x: bp.y, wall: bp.bY.wall);
+    BallPos vp = BallPos.withBouncers(bX, bY);
+    const e = 0.05;
+    while (vp.y - 0.9 > e) vp.step();
+    return vp.x;
   }
 }

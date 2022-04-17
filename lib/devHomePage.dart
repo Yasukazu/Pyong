@@ -58,15 +58,17 @@ class _HomePageState extends State<HomePage> {
         bally = ballPos.y;
       });
 
-      if (startBall && ballPos.dy > 0 || stepResultList[1] == stepResult.bounceUp) {
-        double x;
+      if (startBall && ballPos.dy > 0 ||
+          stepResultList[1] == stepResult.bounceUp) {
+        double x = 0;
         if (startBall) {
           x = enemyPlayer.calcBallArrivalFromCenter(ballPos);
           startBall = false;
         } else {
-          x = enemyPlayer.calcBallArrivalFromAway(ballPos);
+          x = enemyPlayer.simulateBallArrival(ballPos);
         }
         print('enemyPos: $x');
+        assert(x >= -1 && x <= 1);
         moveEnemyTo(x);
       }
 
