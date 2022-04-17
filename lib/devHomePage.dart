@@ -51,14 +51,14 @@ class _HomePageState extends State<HomePage> {
         'ballPos: x=${ballPos.x}, y=${ballPos.y}, dx=${ballPos.dx}, dy=${ballPos.dy}');
     var startBall = true;
     Timer.periodic(Duration(milliseconds: timerRep), (timer) {
-      var stepResults = ballPos.step();
+      var stepResultList = ballPos.step();
       // xy.forEach((e) { // debug print print('$e, '); });
       setState(() {
         ballx = ballPos.x;
         bally = ballPos.y;
       });
 
-      if (ballPos.dy > 0) {
+      if (startBall && ballPos.dy > 0 || stepResultList[1] == stepResult.bounceUp) {
         double x;
         if (startBall) {
           x = enemyPlayer.calcBallArrivalFromCenter(ballPos);

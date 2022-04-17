@@ -40,7 +40,7 @@ class BallPos {
         _bX = Bouncer(tan(angle) / divider, wall: xf);
 
   /// return: [x._neg, y._neg]
-  List<bool?> step() {
+  List<stepResult> step() {
     var x = _bX.step();
     var y = _bY.step();
     return [x, y];
@@ -50,7 +50,11 @@ class BallPos {
 
   static arrivalXFromAway(double ballAngle) {}
 }
-
+  enum stepResult {
+    bounceUp,
+    bounceDown,
+    noBounce
+  }
 // between -wall and wall bouncing number
 class Bouncer {
   double _x;
@@ -71,19 +75,19 @@ class Bouncer {
         this.wall = wall;
 
   /// return: bounced ? _neg : null
-  bool? step() {
+  stepResult step() {
     final a = _x + d;
-    if (a < -wall) {
+    if (a <= -wall) {
       _x = -a - 2 * wall;
       _neg = false;
-      return _neg;
-    } else if (a > wall) {
+      return stepResult.bounceUp;
+    } else if (a >= wall) {
       _x = 2 * wall - a;
       _neg = true;
-      return _neg;
+      return stepResult.bounceDown;
     }
     _x = a;
-    return null;
+    return stepResult.noBounce;
   }
 }
 

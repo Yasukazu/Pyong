@@ -31,7 +31,7 @@ class EnemyPlayer extends Player {
 
   double calcBallArrivalFromAway(BallPos bp, 
       {centerToSideWall = 1.0}) {
-    final a = bp.x + 2 * y * bp.dy / bp.dx;
+    final a = bp.x + 2 * y * bp.dyx/ bp.dy;
     if (a <= centerToSideWall)
       return a;
     else {
