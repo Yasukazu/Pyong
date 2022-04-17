@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:pong/ball.dart';
 
@@ -16,30 +15,27 @@ class Player {
   var score = 0;
   final Color color;
   var diff = 0.0; // keep lost ball reach
-  static const fromCenter = 0.9;
+  static const FROMCENTER = 0.9;
   Player(this.y, this.color);
 }
 
 class SelfPlayer extends Player {
-  SelfPlayer() : super(-Player.fromCenter, PlayerColor.self);
+  SelfPlayer() : super(Player.FROMCENTER, PlayerColor.self);
 }
 
 class EnemyPlayer extends Player {
-  EnemyPlayer() : super(-Player.fromCenter, PlayerColor.enemy);
+  EnemyPlayer() : super(-Player.FROMCENTER, PlayerColor.enemy);
 
-  double calcBallArrival(BallPos pos) => (pos.y == 0)
-      ? Player.fromCenter / pos.dy * pos.dx
-      : calcBallArrivalFromAway(pos.dx, pos.dy, pos.x);
+  double calcBallArrivalFromCenter(BallPos bp) =>
+      y * bp.dx / bp.dy;
 
-  double arrivalFromCenter(double a) => tan(a);
-
-  double calcBallArrivalFromAway(double dx, double dy, double x,
-      {centerToSideWall: 1.0}) {
-    final a = x + 2 * centerToSideWall * dx / dy;
+  double calcBallArrivalFromAway(BallPos bp, 
+      {centerToSideWall = 1.0}) {
+    final a = bp.x + 2 * y * bp.dy / bp.dx;
     if (a <= centerToSideWall)
       return a;
     else {
-      return 2 * centerToSideWall - a - x;
+      return 2 * centerToSideWall - a - bp.x;
     }
   }
 }

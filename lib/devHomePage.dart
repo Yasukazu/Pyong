@@ -43,8 +43,12 @@ class _HomePageState extends State<HomePage> {
   void startGame() {
     gameStarted = true;
     final int divider = awayToHomeTime ~/ timerRep; // divide to get an integer
-    double angle = degreeToRadian(40); // radian from degree
-    ballPos = BallPos.withAngleDivider(angle, divider, yf: Player.fromCenter);
+    bool startFromEnemy = true;
+    double angle =
+        degreeToRadian(40 + (startFromEnemy ? 180 : 0)); // radian from degree
+    ballPos = BallPos.withAngleDivider(angle, divider, yf: Player.FROMCENTER);
+    print(
+        'ballPos: x=${ballPos.x}, y=${ballPos.y}, dx=${ballPos.dx}, dy=${ballPos.dy}');
     var startBall = true;
     Timer.periodic(Duration(milliseconds: timerRep), (timer) {
       var stepResults = ballPos.step();
@@ -54,11 +58,17 @@ class _HomePageState extends State<HomePage> {
         bally = ballPos.y;
       });
 
-      if (startBall) {
-        enemyPlayer.moveToBallArrival(ballPos);
-        startBall = false;
+      if (ballPos.dy > 0) {
+        double x;
+        if (startBall) {
+          x = enemyPlayer.calcBallArrivalFromCenter(ballPos);
+          startBall = false;
+        } else {
+          x = enemyPlayer.calcBallArrivalFromAway(ballPos);
+        }
+        print('enemyPos: $x');
+        moveEnemyTo(x);
       }
-      moveEnemyTo(ballPos.by.arrivalFromAway(angle));
 
       if (isPlayerDead()) {
         enemyScore++;
@@ -291,4 +301,4 @@ class Score extends StatelessWidget {
   }
 }
 
-degreeToRadian(a) => tan(a / 360 * 2 * pi);
+degreeToRadian(a) => a / 360 * 2 * pi;
