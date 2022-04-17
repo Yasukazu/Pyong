@@ -1,10 +1,11 @@
 import 'dart:async';
-
+import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:pong/ball.dart';
 import 'package:pong/brick.dart';
 import 'package:pong/welcomeScreen.dart';
+import 'package:pong/Player.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -12,22 +13,6 @@ class HomePage extends StatefulWidget {
 }
 
 enum direction { UP, DOWN, LEFT, RIGHT }
-enum players { SELF, ENEMY }
-
-class PlayerColor {
-  static Color get self => Colors.pink;
-  static Color get enemy => Colors.purple;
-}
-
-// Player class
-class Player {
-  var x = -0.2; // starting horizontal position
-  final double y;
-  var score = 0;
-  final Color color;
-  var diff = 0.0; // keep lost ball reach
-  Player(this.y, this.color);
-}
 
 class _HomePageState extends State<HomePage> {
   //LOGIC
@@ -40,14 +25,12 @@ class _HomePageState extends State<HomePage> {
   //player variations
   // double playerX = -0.2;
   int playerScore = 0;
-  final Player selfPlayer =
-      Player(-0.9, PlayerColor.self); // Colors.pink.shade300);
+  final selfPlayer = SelfPlayer();
 
   // enemy variable
   // double enemyX = -0.2;
   int enemyScore = 0;
-  final Player enemyPlayer =
-      Player(0.9, PlayerColor.enemy); // Colors.purple.shade500);
+  final enemyPlayer = EnemyPlayer();
 
   //ball
   double ballx = 0;
@@ -60,20 +43,22 @@ class _HomePageState extends State<HomePage> {
   void startGame() {
     gameStarted = true;
     final int divider = awayToHomeTime ~/ timerRep; // divide to get an integer
-    double angle = 40;
-    ballPos = BallPos.withAngleDivider(angle, divider); // degree
+    double angle = degreeToRadian(40); // radian from degree
+    ballPos = BallPos.withAngleDivider(angle, divider, yf: Player.fromCenter);
+    var startBall = true;
     Timer.periodic(Duration(milliseconds: timerRep), (timer) {
-      var xy = ballPos.step();
-      xy.forEach((e) {
-        // debug print
-        print('$e, ');
-      });
+      var stepResults = ballPos.step();
+      // xy.forEach((e) { // debug print print('$e, '); });
       setState(() {
         ballx = ballPos.x;
         bally = ballPos.y;
       });
 
-      moveEnemy();
+      if (startBall) {
+        enemyPlayer.moveToBallArrival(ballPos);
+        startBall = false;
+      }
+      moveEnemyTo(ballPos.by.arrivalFromAway(angle));
 
       if (isPlayerDead()) {
         enemyScore++;
@@ -99,7 +84,13 @@ class _HomePageState extends State<HomePage> {
     return false;
   }
 
-  void moveEnemy() {
+  moveEnemyTo(x) {
+    setState(() {
+      enemyPlayer.x = x;
+    });
+  }
+
+  moveEnemy() {
     const k = 1.5;
     final lastPos = ballx;
     Future.delayed(Duration(milliseconds: 250), () {
@@ -299,3 +290,5 @@ class Score extends StatelessWidget {
         : Container();
   }
 }
+
+degreeToRadian(a) => tan(a / 360 * 2 * pi);
