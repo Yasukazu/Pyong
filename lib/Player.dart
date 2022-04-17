@@ -42,7 +42,7 @@ class EnemyPlayer extends Player {
     Bouncer bY = Bouncer(bp.dy, x: bp.y, wall: bp.bY.wall);
     BallPos vp = BallPos.withBouncers(bX, bY);
     const e = 0.05;
-    while (vp.y - 0.9 > e) vp.step();
+    while (vp.y > -vp.bY.wall + e) vp.step();
     return vp.x;
   }
 }

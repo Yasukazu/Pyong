@@ -59,7 +59,7 @@ class _HomePageState extends State<HomePage> {
       });
 
       if (startBall && ballPos.dy > 0 ||
-          stepResultList[1] == stepResult.bounceUp) {
+          stepResultList[1] == stepResult.bounceDown) {
         double x = 0;
         if (startBall) {
           x = enemyPlayer.calcBallArrivalFromCenter(ballPos);
