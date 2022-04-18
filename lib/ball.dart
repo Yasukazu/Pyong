@@ -25,8 +25,8 @@ class BallPos {
   double get y => bY.x;
   double get dx => bX.d;
   double get dy => bY.d;
-  // double get xf => bX.wall;
-  // double get yf => bY.wall;
+  double get toSide => bX.wall; // side from home
+  double get homeToAway => 2 * bY.wall; // home from center
   final Bouncer bX;
   final Bouncer bY;
 
