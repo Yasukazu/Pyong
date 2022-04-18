@@ -23,11 +23,12 @@ class Player {
 
 class SelfPlayer extends Player {
   SelfPlayer(double width) : super(PLAYERFROMCENTER, PlayerColor.self, width);
-  bool hitBall(BallPos bp) {}
+  bool catchBall(BallPos bp) => bp.x >= x - width / 2 && bp.x <= x + width / 2;
 }
 
 class EnemyPlayer extends Player {
-  EnemyPlayer(double width) : super(-PLAYERFROMCENTER, PlayerColor.enemy, width);
+  EnemyPlayer(double width)
+      : super(-PLAYERFROMCENTER, PlayerColor.enemy, width);
 
   double calcBallArrivalFromCenter(BallPos bp) => y * bp.dx / bp.dy;
 

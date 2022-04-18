@@ -72,6 +72,13 @@ class _HomePageState extends State<HomePage> {
           x = enemyPlayer.calcBallArrivalFromCenter(ballPos);
           startBall = false;
         } else {
+                  if (!selfPlayer.catchBall(ballPos)) {
+                 enemyPlayer.score++;
+        timer.cancel();
+        _showDialog(false);
+        // resetGame(); 
+        }
+        else
           x = enemyPlayer.simulateBallArrival(ballPos);
         }
         print('enemyPos: $x');
@@ -80,14 +87,12 @@ class _HomePageState extends State<HomePage> {
           // moveEnemyTo(x);
           enemyPlayer.x = x;
         });
-      } else if (stepResults.y == stepResult.toMinus) {}
+      } else if (stepResults.y == stepResult.toMinus) { // upward ball
 
-      if (isPlayerDead()) {
-        enemyScore++;
-        timer.cancel();
-        _showDialog(false);
-        // resetGame();
+
       }
+
+
       if (isEnemyDead()) {
         playerScore++;
         enemyPlayer.diff = (ballx - enemyPlayer.x).abs();
