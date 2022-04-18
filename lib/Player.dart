@@ -12,24 +12,22 @@ class PlayerColor {
 
 // Player class
 class Player {
-  var x = -0.2; // starting horizontal position
+  var x = -0.0; // starting horizontal position
   final double y;
   var score = 0;
   final Color color;
+  final width;
   var diff = 0.0; // keep lost ball reach
-  static const FROMCENTER = 0.9;
-  Player(this.y, this.color);
+  Player(this.y, this.color, this.width);
 }
 
 class SelfPlayer extends Player {
-  SelfPlayer() : super(Player.FROMCENTER, PlayerColor.self);
-  bool hitBall(BallPos bp) {
-
-  }
+  SelfPlayer(double width) : super(PLAYERFROMCENTER, PlayerColor.self, width);
+  bool hitBall(BallPos bp) {}
 }
 
 class EnemyPlayer extends Player {
-  EnemyPlayer() : super(-Player.FROMCENTER, PlayerColor.enemy);
+  EnemyPlayer(double width) : super(-PLAYERFROMCENTER, PlayerColor.enemy, width);
 
   double calcBallArrivalFromCenter(BallPos bp) => y * bp.dx / bp.dy;
 

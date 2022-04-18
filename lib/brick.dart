@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:pong/Player.dart';
 
 class Brick extends StatelessWidget {
-  final double x;
-  final double y;
-  final double brickWidth;
-  final Color color; //isEnemy;
-  Brick(this.x, this.y, this.brickWidth, this.color);
+  double get x => player.x;
+  double get y => player.y;
+  double get brickWidth => player.width;
+  Color get color => player.color;
+  final Player player;
+  Brick(this.player);
 
   @override
   Widget build(BuildContext context) {
@@ -15,7 +17,8 @@ class Brick extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
           child: Container(
             alignment: Alignment(0, 0),
-            color: color, // isEnemy ? PlayerColor.enemy : PlayerColor.self, //Colors.purple[500] : Colors.pink[300],
+            color:
+                color, // isEnemy ? PlayerColor.enemy : PlayerColor.self, //Colors.purple[500] : Colors.pink[300],
             height: 20,
             width: MediaQuery.of(context).size.width * brickWidth / 2,
           ),

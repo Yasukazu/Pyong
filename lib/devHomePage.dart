@@ -17,12 +17,14 @@ enum direction { UP, DOWN, LEFT, RIGHT }
 const CENTERTOSIDE = 1.0;
 const PLAYERTOBACKWALL = 0.1;
 const CENTERTOPLAYER = 1.0;
+const PLAYERFROMCENTER = CENTERTOPLAYER - PLAYERTOBACKWALL;
 const HOMETOAWAY = 2 * (CENTERTOPLAYER - PLAYERTOBACKWALL);
 
 class _HomePageState extends State<HomePage> {
   //LOGIC
   // common params:
-  final brickWidth = 0.5;
+  static const selfBrickWidth = 0.5;
+  static const enemyBrickWidth = 0.2;
   final moveLR = 0.2; // move length of moveLeft and moveRight
   int awayToHomeTime = 1000; // miliseconds
   final timerRep = 20; // ms
@@ -30,12 +32,12 @@ class _HomePageState extends State<HomePage> {
   //player variations
   // double playerX = -0.2;
   int playerScore = 0;
-  final selfPlayer = SelfPlayer();
+  final selfPlayer = SelfPlayer(selfBrickWidth);
 
   // enemy variable
   // double enemyX = -0.2;
   int enemyScore = 0;
-  final enemyPlayer = EnemyPlayer();
+  final enemyPlayer = EnemyPlayer(enemyBrickWidth);
 
   //ball
   double ballx = 0;
@@ -52,7 +54,7 @@ class _HomePageState extends State<HomePage> {
     double angle = atan2(1, -2);
     print('angle: ${angle / pi * 180}');
     // degreeToRadian(40 + (startFromEnemy ? 180 : 0)); // radian from degree
-    ballPos = BallPos.withAngleDivider(angle, divider, yf: Player.FROMCENTER);
+    ballPos = BallPos.withAngleDivider(angle, divider, yf: PLAYERFROMCENTER);
     print(
         'ballPos: x=${ballPos.x}, y=${ballPos.y}, dx=${ballPos.dx}, dy=${ballPos.dy}');
     var startBall = true;
@@ -78,10 +80,7 @@ class _HomePageState extends State<HomePage> {
           // moveEnemyTo(x);
           enemyPlayer.x = x;
         });
-      }
-      else if (stepResults.y == stepResult.toMinus) {
-
-      }
+      } else if (stepResults.y == stepResult.toMinus) {}
 
       if (isPlayerDead()) {
         enemyScore++;
@@ -184,24 +183,6 @@ class _HomePageState extends State<HomePage> {
     return false;
   }
 
-  void updatedDirection() {
-    setState(() {
-      //update vertical direction / collision detection with selfPlayer.x
-      if (bally >= 0.9 &&
-          (ballx >= selfPlayer.x && ballx <= selfPlayer.x + brickWidth)) {
-        ballYDirection = direction.UP;
-      } else if (bally <= -0.9 &&
-          (ballx >= enemyPlayer.x && ballx <= enemyPlayer.x + brickWidth)) {
-        ballYDirection = direction.DOWN;
-      }
-      // update horizontal directions
-      if (ballx >= 1) {
-        ballXDirection = direction.LEFT;
-      } else if (ballx <= -1) {
-        ballXDirection = direction.RIGHT;
-      }
-    });
-  }
 
   void moveBall() {
     //vertical movement
@@ -233,10 +214,10 @@ class _HomePageState extends State<HomePage> {
   }
 
   void moveRight() {
-    if (!(selfPlayer.x + brickWidth > 1)) {
+    if (!(selfPlayer.x + moveLR > 1)) {
       selfPlayer.x += moveLR;
     } else {
-      selfPlayer.x = 1 - brickWidth;
+      selfPlayer.x = 1 - moveLR;
     }
   }
 
@@ -262,13 +243,13 @@ class _HomePageState extends State<HomePage> {
                 Welcome(gameStarted),
 
                 //enemy brick on top
-                Brick(enemyPlayer.x, -0.9, brickWidth, PlayerColor.enemy),
+                Brick(enemyPlayer),
                 //scoreboard
                 Score(gameStarted, enemyScore, playerScore),
                 // ball
                 Ball(ballx, bally),
                 // self brick on bottom
-                Brick(selfPlayer.x, 0.9, brickWidth, PlayerColor.self)
+                Brick(selfPlayer)
               ],
             ))),
       ),
