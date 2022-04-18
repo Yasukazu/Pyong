@@ -2,12 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:pong/Player.dart';
 
 class Brick extends StatelessWidget {
-  double get x => player.x;
+  final double x;
   double get y => player.y;
   double get brickWidth => player.width;
   Color get color => player.color;
   final Player player;
-  Brick(this.player);
+  Brick(this.player, this.x);
 
   @override
   Widget build(BuildContext context) {

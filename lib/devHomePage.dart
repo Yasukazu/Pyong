@@ -20,6 +20,10 @@ const CENTERTOPLAYER = 1.0;
 const PLAYERFROMCENTER = CENTERTOPLAYER - PLAYERTOBACKWALL;
 const HOMETOAWAY = 2 * (CENTERTOPLAYER - PLAYERTOBACKWALL);
 
+enum selfOrEnemyDied {
+  selfDied, enemyDied
+}
+
 class _HomePageState extends State<HomePage> {
   //LOGIC
   // common params:
@@ -29,19 +33,19 @@ class _HomePageState extends State<HomePage> {
   int awayToHomeTime = 1000; // miliseconds
   final timerRep = 20; // ms
   double get ballMoveD => timerRep / awayToHomeTime;
-  //player variations
-  // double playerX = -0.2;
+  //player variables for setState
+  double playerX = 0;
   int playerScore = 0;
   final selfPlayer = SelfPlayer(selfBrickWidth);
 
-  // enemy variable
-  // double enemyX = -0.2;
+  // enemy variables for setState
+  double enemyX = 0;
   int enemyScore = 0;
   final enemyPlayer = EnemyPlayer(enemyBrickWidth);
 
   //ball
-  double ballx = 0;
-  double bally = 0;
+  double ballX = 0;
+  double ballY = 0;
   var ballPos = BallPos(0, 0);
   var ballYDirection = direction.DOWN;
   var ballXDirection = direction.RIGHT;
@@ -62,8 +66,8 @@ class _HomePageState extends State<HomePage> {
       final stepResults = ballPos.step();
       // xy.forEach((e) { // debug print print('$e, '); });
       setState(() {
-        ballx = ballPos.x;
-        bally = ballPos.y;
+        ballX = ballPos.x;
+        ballY = ballPos.y;
       });
 
       if (startBall && ballPos.dy < 0 || stepResults.y == stepResult.toMinus) {
@@ -71,34 +75,32 @@ class _HomePageState extends State<HomePage> {
         if (startBall) {
           x = enemyPlayer.calcBallArrivalFromCenter(ballPos);
           startBall = false;
-        } else {
-                  if (!selfPlayer.catchBall(ballPos)) {
-                 enemyPlayer.score++;
-        timer.cancel();
-        _showDialog(false);
-        // resetGame(); 
         }
-        else
-          x = enemyPlayer.simulateBallArrival(ballPos);
-        }
+        else {
+          if (!selfPlayer.catchBall(ballPos)) {
+            enemyPlayer.score++;
+            timer.cancel();
+            _showDialog(selfOrEnemyDied.selfDied);
+            // resetGame(); 
+          }
+          else
+            x = enemyPlayer.simulateBallArrival(ballPos);
+          }
         print('enemyPos: $x');
         assert(x.abs() <= CENTERTOSIDE);
         setState(() {
           // moveEnemyTo(x);
           enemyPlayer.x = x;
         });
-      } else if (stepResults.y == stepResult.toMinus) { // upward ball
-
-
-      }
+      } 
 
 
       if (isEnemyDead()) {
         playerScore++;
-        enemyPlayer.diff = (ballx - enemyPlayer.x).abs();
+        enemyPlayer.diff = (ballX - enemyPlayer.x).abs();
         print(enemyPlayer.diff);
         timer.cancel();
-        _showDialog(true);
+        _showDialog(selfOrEnemyDied.enemyDied);
         // resetGame();
       }
     });
@@ -119,7 +121,7 @@ class _HomePageState extends State<HomePage> {
 
   moveEnemy() {
     const k = 1.5;
-    final lastPos = ballx;
+    final lastPos = ballX;
     Future.delayed(Duration(milliseconds: 250), () {
       // delay on reaction
       setState(() {
@@ -131,7 +133,7 @@ class _HomePageState extends State<HomePage> {
     });
   }
 
-  void _showDialog(bool enemyDied) {
+  void _showDialog(selfOrEnemyDied selfOrEnemy) {
     showDialog(
         context: context,
         barrierDismissible: false,
@@ -144,7 +146,7 @@ class _HomePageState extends State<HomePage> {
             backgroundColor: Colors.purple,
             title: Center(
               child: Text(
-                enemyDied ? "You win." : "Opponent win.",
+                selfOrEnemy == selfOrEnemyDied.enemyDied ? "You win." : "Opponent win.",
                 style: TextStyle(color: Colors.white),
               ),
             ),
@@ -159,7 +161,7 @@ class _HomePageState extends State<HomePage> {
                       child: Text(
                         "Play Again",
                         style: TextStyle(
-                            color: enemyDied
+                            color: selfOrEnemy == selfOrEnemyDied.enemyDied
                                 ? Colors.pink[300]
                                 : Colors.purple[000]),
                       )),
@@ -174,15 +176,15 @@ class _HomePageState extends State<HomePage> {
     Navigator.pop(context);
     setState(() {
       gameStarted = false;
-      ballx = 0;
-      bally = 0;
+      ballX = 0;
+      ballY = 0;
       selfPlayer.x = -0.2;
       enemyPlayer.x = -0.2;
     });
   }
 
   bool isPlayerDead() {
-    if (bally >= 0.9) {
+    if (ballY >= 0.9) {
       return true;
     }
     return false;
@@ -193,17 +195,17 @@ class _HomePageState extends State<HomePage> {
     //vertical movement
     setState(() {
       if (ballYDirection == direction.DOWN) {
-        bally += ballMoveD;
+        ballY += ballMoveD;
       } else if (ballYDirection == direction.UP) {
-        bally -= ballMoveD;
+        ballY -= ballMoveD;
       }
     });
     //horizontal movement
     setState(() {
       if (ballXDirection == direction.LEFT) {
-        ballx -= ballMoveD;
+        ballX -= ballMoveD;
       } else if (ballXDirection == direction.RIGHT) {
-        ballx += ballMoveD;
+        ballX += ballMoveD;
       }
     });
   }
@@ -248,13 +250,13 @@ class _HomePageState extends State<HomePage> {
                 Welcome(gameStarted),
 
                 //enemy brick on top
-                Brick(enemyPlayer),
+                Brick(enemyPlayer, enemyX),
                 //scoreboard
                 Score(gameStarted, enemyScore, playerScore),
                 // ball
-                Ball(ballx, bally),
+                Ball(ballX, ballY),
                 // self brick on bottom
-                Brick(selfPlayer)
+                Brick(selfPlayer, playerX)
               ],
             ))),
       ),
