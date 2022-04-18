@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pong/ball.dart';
+import 'package:pong/devHomePage.dart';
+import 'package:pong/brick.dart';
 
 enum players { SELF, ENEMY }
 
@@ -21,6 +23,9 @@ class Player {
 
 class SelfPlayer extends Player {
   SelfPlayer() : super(Player.FROMCENTER, PlayerColor.self);
+  bool hitBall(BallPos bp) {
+
+  }
 }
 
 class EnemyPlayer extends Player {
@@ -37,20 +42,27 @@ class EnemyPlayer extends Player {
     }
   }
 
-  double calcBallArrival2(BallPos bp){
+  double calcBallArrival2(BallPos bp) {
+    assert(CENTERTOSIDE <= 1.0);
+    assert(bp.toSide <= CENTERTOSIDE);
     final xs = bp.toSide - bp.x.abs();
-    final ys = xs * bp.dy / bp.dx;
+    final ys = xs * (bp.dy / bp.dx).abs();
+    assert(HOMETOAWAY <= 2.0);
+    assert(bp.homeToAway <= HOMETOAWAY);
     final yss = bp.homeToAway - ys;
-    final xss = yss * bp.dx /bp.dy;
-    return bp.x.sign * (bp.toSide - xss);
+    final xss = yss * (bp.dx / bp.dy).abs();
+    final naX = (bp.toSide - xss).abs();
+    assert(naX <= CENTERTOSIDE);
+    return bp.x.sign * naX;
   }
 
   double simulateBallArrival(BallPos bp, {centerToSideWall = 1.0}) {
-    Bouncer bX = Bouncer(bp.dx, x: bp.x, wall: bp.bX.wall);
-    Bouncer bY = Bouncer(bp.dy, x: bp.y, wall: bp.bY.wall);
+    const m = 8;
+    Bouncer bX = Bouncer(m * bp.dx, x: bp.x, wall: bp.bX.wall);
+    Bouncer bY = Bouncer(m * bp.dy, x: bp.y, wall: bp.bY.wall);
     BallPos vp = BallPos.withBouncers(bX, bY);
-    const e = 0.05;
-    while (vp.y > -vp.bY.wall + e) vp.step();
+    // const e = 0.05;
+    while (vp.y > -vp.bY.wall) vp.step();
     return vp.x;
   }
 }

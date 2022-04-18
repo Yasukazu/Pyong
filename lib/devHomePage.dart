@@ -14,6 +14,11 @@ class HomePage extends StatefulWidget {
 
 enum direction { UP, DOWN, LEFT, RIGHT }
 
+const CENTERTOSIDE = 1.0;
+const PLAYERTOBACKWALL = 0.1;
+const CENTERTOPLAYER = 1.0;
+const HOMETOAWAY = 2 * (CENTERTOPLAYER - PLAYERTOBACKWALL);
+
 class _HomePageState extends State<HomePage> {
   //LOGIC
   // common params:
@@ -44,22 +49,22 @@ class _HomePageState extends State<HomePage> {
     gameStarted = true;
     final int divider = awayToHomeTime ~/ timerRep; // divide to get an integer
     bool startFromEnemy = true;
-    double angle =
-        degreeToRadian(40 + (startFromEnemy ? 180 : 0)); // radian from degree
+    double angle = atan2(1, -2);
+    print('angle: ${angle / pi * 180}');
+    // degreeToRadian(40 + (startFromEnemy ? 180 : 0)); // radian from degree
     ballPos = BallPos.withAngleDivider(angle, divider, yf: Player.FROMCENTER);
     print(
         'ballPos: x=${ballPos.x}, y=${ballPos.y}, dx=${ballPos.dx}, dy=${ballPos.dy}');
     var startBall = true;
     Timer.periodic(Duration(milliseconds: timerRep), (timer) {
-      var stepResultList = ballPos.step();
+      final stepResults = ballPos.step();
       // xy.forEach((e) { // debug print print('$e, '); });
       setState(() {
         ballx = ballPos.x;
         bally = ballPos.y;
       });
 
-      if (startBall && ballPos.dy > 0 ||
-          stepResultList[1] == stepResult.bounceDown) {
+      if (startBall && ballPos.dy < 0 || stepResults.y == stepResult.toMinus) {
         double x = 0;
         if (startBall) {
           x = enemyPlayer.calcBallArrivalFromCenter(ballPos);
@@ -68,8 +73,14 @@ class _HomePageState extends State<HomePage> {
           x = enemyPlayer.simulateBallArrival(ballPos);
         }
         print('enemyPos: $x');
-        assert(x >= -1 && x <= 1);
-        moveEnemyTo(x);
+        assert(x.abs() <= CENTERTOSIDE);
+        setState(() {
+          // moveEnemyTo(x);
+          enemyPlayer.x = x;
+        });
+      }
+      else if (stepResults.y == stepResult.toMinus) {
+
       }
 
       if (isPlayerDead()) {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
+import 'package:pong/devHomePage.dart';
 
 class Ball extends StatelessWidget {
   final x;
@@ -30,9 +31,9 @@ class BallPos {
   final Bouncer bX;
   final Bouncer bY;
 
-  BallPos(double x, double y, {xf = 1.0, yf = 1.0})
-      : bX = Bouncer(x, wall: xf),
-        bY = Bouncer(y, wall: yf);
+  BallPos(double dx, double dy, {xf = CENTERTOSIDE, yf = HOMETOAWAY / 2})
+      : bX = Bouncer(dx, wall: xf),
+        bY = Bouncer(dy, wall: yf);
 
   // angle[radian]
   BallPos.withAngleDivider(double angle, int divider, {xf = 1.0, yf = 1.0})
@@ -44,10 +45,10 @@ class BallPos {
         bX = xB;
 
   /// return: [x._neg, y._neg]
-  List<stepResult> step() {
+  StepResults step() {
     var x = bX.step();
     var y = bY.step();
-    return [x, y];
+    return StepResults(x, y);
   }
 
   static arrivalXFromCenter(double ballAngle) => tan(ballAngle / 360 * 2 * pi);
@@ -55,7 +56,13 @@ class BallPos {
   static arrivalXFromAway(double ballAngle) {}
 }
 
-enum stepResult { bounceUp, bounceDown, noBounce }
+enum stepResult { toPlus, toMinus, keep }
+
+class StepResults {
+  final stepResult x;
+  final stepResult y;
+  StepResults(this.x, this.y);
+}
 
 // between -wall and wall bouncing number
 class Bouncer {
@@ -80,14 +87,14 @@ class Bouncer {
     if (a <= -wall) {
       _x = -a - 2 * wall;
       _neg = false;
-      return stepResult.bounceUp;
+      return stepResult.toPlus;
     } else if (a >= wall) {
       _x = 2 * wall - a;
       _neg = true;
-      return stepResult.bounceDown;
+      return stepResult.toMinus;
     }
     _x = a;
-    return stepResult.noBounce;
+    return stepResult.keep;
   }
 }
 

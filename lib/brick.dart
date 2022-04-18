@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:pong/homePage.dart';
 
 class Brick extends StatelessWidget {
   final double x;
