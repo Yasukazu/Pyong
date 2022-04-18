@@ -37,6 +37,14 @@ class EnemyPlayer extends Player {
     }
   }
 
+  double calcBallArrival2(BallPos bp){
+    final xs = bp.toSide - bp.x.abs();
+    final ys = xs * bp.dy / bp.dx;
+    final yss = bp.homeToAway - ys;
+    final xss = yss * bp.dx /bp.dy;
+    return bp.x.sign * (bp.toSide - xss);
+  }
+
   double simulateBallArrival(BallPos bp, {centerToSideWall = 1.0}) {
     Bouncer bX = Bouncer(bp.dx, x: bp.x, wall: bp.bX.wall);
     Bouncer bY = Bouncer(bp.dy, x: bp.y, wall: bp.bY.wall);
