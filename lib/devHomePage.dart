@@ -20,9 +20,7 @@ const CENTERTOPLAYER = 1.0;
 const PLAYERFROMCENTER = CENTERTOPLAYER - PLAYERTOBACKWALL;
 const HOMETOAWAY = 2 * (CENTERTOPLAYER - PLAYERTOBACKWALL);
 
-enum selfOrEnemyDied {
-  selfDied, enemyDied
-}
+enum selfOrEnemyDied { selfDied, enemyDied }
 
 class _HomePageState extends State<HomePage> {
   //LOGIC
@@ -50,18 +48,31 @@ class _HomePageState extends State<HomePage> {
   var ballYDirection = direction.DOWN;
   var ballXDirection = direction.RIGHT;
   var gameStarted = false;
+  final angleGenerator = RandAngleIterator(14); // degree
+  double generateAngle() {
+    final anglePairList = [
+      [1.7, 1],
+      [1, 0.7]
+    ];
+    final rand = new Random();
+    final elem = rand.nextInt(1);
+    final xy = anglePairList[elem];
+    return atan2(
+        xy[0] * (rand.nextBool() ? 1 : -1), xy[1] * (rand.nextBool() ? 1 : -1));
+  }
 
   void startGame() {
     gameStarted = true;
     final int divider = awayToHomeTime ~/ timerRep; // divide to get an integer
-    bool startFromEnemy = true;
-    double angle = atan2(1, -2);
+    double angle = angleGenerator.current; // generateAngle();
+    angleGenerator.moveNext();
     print('angle: ${angle / pi * 180}');
     // degreeToRadian(40 + (startFromEnemy ? 180 : 0)); // radian from degree
     ballPos = BallPos.withAngleDivider(angle, divider, yf: PLAYERFROMCENTER);
     print(
         'ballPos: x=${ballPos.x}, y=${ballPos.y}, dx=${ballPos.dx}, dy=${ballPos.dy}');
     var startBall = true;
+
     Timer.periodic(Duration(milliseconds: timerRep), (timer) {
       final stepResults = ballPos.step();
       // xy.forEach((e) { // debug print print('$e, '); });
@@ -69,31 +80,35 @@ class _HomePageState extends State<HomePage> {
         ballX = ballPos.x;
         ballY = ballPos.y;
       });
+      if (!gameStarted) timer.cancel();
 
-      if (startBall && ballPos.dy < 0 || stepResults.y == stepResult.toMinus) {
-        double x = 0;
-        if (startBall) {
-          x = enemyPlayer.calcBallArrivalFromCenter(ballPos);
-          startBall = false;
+      double x = 0;
+      bool xIsSet = false;
+      if (startBall && stepResults.y == stepResult.toPlus) {
+        startBall = false;
+        x = enemyPlayer.calcBallArrivalFromCenter(ballPos);
+        xIsSet = true;
+        print('start enemyPos: $x');
+      } else if (stepResults.y == stepResult.toMinus) {
+        if (!selfPlayer.catchBall(ballPos)) {
+          enemyPlayer.score++;
+          timer.cancel();
+          _showDialog(selfOrEnemyDied.selfDied);
+          // resetGame();
+        } else {
+          x = enemyPlayer.simulateBallArrival(ballPos);
+          xIsSet = true;
+          print('enemyPos($enemyX) is set to: $x');
         }
-        else {
-          if (!selfPlayer.catchBall(ballPos)) {
-            enemyPlayer.score++;
-            timer.cancel();
-            _showDialog(selfOrEnemyDied.selfDied);
-            // resetGame(); 
-          }
-          else
-            x = enemyPlayer.simulateBallArrival(ballPos);
-          }
-        print('enemyPos: $x');
+      }
+
+      if (xIsSet) {
         assert(x.abs() <= CENTERTOSIDE);
         setState(() {
           // moveEnemyTo(x);
-          enemyPlayer.x = x;
+          enemyX = enemyPlayer.x = x;
         });
-      } 
-
+      }
 
       if (isEnemyDead()) {
         playerScore++;
@@ -107,7 +122,7 @@ class _HomePageState extends State<HomePage> {
   }
 
   bool isEnemyDead() {
-    if (bally <= -1) {
+    if (ballY <= -1) {
       return true;
     }
     return false;
@@ -146,7 +161,9 @@ class _HomePageState extends State<HomePage> {
             backgroundColor: Colors.purple,
             title: Center(
               child: Text(
-                selfOrEnemy == selfOrEnemyDied.enemyDied ? "You win." : "Opponent win.",
+                selfOrEnemy == selfOrEnemyDied.enemyDied
+                    ? "You win."
+                    : "Opponent win.",
                 style: TextStyle(color: Colors.white),
               ),
             ),
@@ -189,7 +206,6 @@ class _HomePageState extends State<HomePage> {
     }
     return false;
   }
-
 
   void moveBall() {
     //vertical movement

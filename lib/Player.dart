@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pong/ball.dart';
 import 'package:pong/devHomePage.dart';
-import 'package:pong/brick.dart';
 
 enum players { SELF, ENEMY }
 
@@ -23,7 +22,11 @@ class Player {
 
 class SelfPlayer extends Player {
   SelfPlayer(double width) : super(PLAYERFROMCENTER, PlayerColor.self, width);
-  bool catchBall(BallPos bp) => bp.x >= x - width / 2 && bp.x <= x + width / 2;
+  bool catchBall(BallPos bp) {
+    final result = bp.x >= x - width / 2 && bp.x <= x + width / 2;
+    print('in selfPlayer.catchBall: result = $result');
+    return result;
+  }
 }
 
 class EnemyPlayer extends Player {
@@ -56,12 +59,18 @@ class EnemyPlayer extends Player {
   }
 
   double simulateBallArrival(BallPos bp, {centerToSideWall = 1.0}) {
-    const m = 8;
+    const m = 2;
     Bouncer bX = Bouncer(m * bp.dx, x: bp.x, wall: bp.bX.wall);
     Bouncer bY = Bouncer(m * bp.dy, x: bp.y, wall: bp.bY.wall);
     BallPos vp = BallPos.withBouncers(bX, bY);
     // const e = 0.05;
-    while (vp.y > -vp.bY.wall) vp.step();
-    return vp.x;
+    var x = 0.0;
+    while (vp.y > -vp.bY.wall) {
+      vp.step();
+      x = vp.x;
+      print('simulate x = $x');
+      assert(x <= bp.bX.wall);
+    }
+    return x;
   }
 }

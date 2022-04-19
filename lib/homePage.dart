@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'package:pong/ball.dart';
 import 'package:pong/brick.dart';
 import 'package:pong/welcomeScreen.dart';
+import 'package:pong/Player.dart';
 
 class HomePage extends StatefulWidget {
   @override
@@ -19,15 +20,7 @@ class PlayerColor {
   static Color get enemy => Colors.purple;
 }
 
-// Player class
-class Player {
-  var x = -0.2; // starting horizontal position
-  final double y;
-  var score = 0;
-  final Color color;
-  var diff = 0.0; // keep lost ball reach
-  Player(this.y, this.color);
-}
+
 
 class _HomePageState extends State<HomePage> {
   //LOGIC
@@ -40,14 +33,14 @@ class _HomePageState extends State<HomePage> {
   //player variations
   // double playerX = -0.2;
   int playerScore = 0;
-  final Player selfPlayer =
-      Player(-0.9, PlayerColor.self); // Colors.pink.shade300);
+  final selfPlayer =
+      SelfPlayer(-0.9); // Colors.pink.shade300);
 
   // enemy variable
   // double enemyX = -0.2;
   int enemyScore = 0;
-  final Player enemyPlayer =
-      Player(0.9, PlayerColor.enemy); // Colors.purple.shade500);
+  final enemyPlayer =
+      EnemyPlayer(0.9); // Colors.purple.shade500);
 
   //ball
   double ballx = 0;
@@ -238,13 +231,13 @@ class _HomePageState extends State<HomePage> {
                 Welcome(gameStarted),
 
                 //enemy brick on top
-                Brick(enemyPlayer.x, -0.9, brickWidth, PlayerColor.enemy),
+                Brick(enemyPlayer, enemyPlayer.x),
                 //scoreboard
                 Score(gameStarted, enemyScore, playerScore),
                 // ball
                 Ball(ballx, bally),
                 // self brick on bottom 
-                Brick(selfPlayer.x, 0.9, brickWidth, PlayerColor.self)
+                Brick(selfPlayer, selfPlayer.x)
               ],
             ))),
       ),
