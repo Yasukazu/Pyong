@@ -18,15 +18,16 @@ class Player {
   final width;
   var diff = 0.0; // keep lost ball reach
   Player(this.y, this.color, this.width);
+  bool catchBall(BallPos bp) {
+    final result = bp.x >= x - width / 2 && bp.x <= x + width / 2;
+    print('in Player.catchBall: result = $result');
+    return result;
+  }
 }
 
 class SelfPlayer extends Player {
   SelfPlayer(double width) : super(PLAYERFROMCENTER, PlayerColor.self, width);
-  bool catchBall(BallPos bp) {
-    final result = bp.x >= x - width / 2 && bp.x <= x + width / 2;
-    print('in selfPlayer.catchBall: result = $result');
-    return result;
-  }
+
 }
 
 class EnemyPlayer extends Player {

@@ -84,21 +84,23 @@ class _HomePageState extends State<HomePage> {
 
       double x = 0;
       bool xIsSet = false;
-      if (startBall && stepResults.y == stepResult.toPlus) {
-        startBall = false;
-        x = enemyPlayer.calcBallArrivalFromCenter(ballPos);
-        xIsSet = true;
-        print('start enemyPos: $x');
-      } else if (stepResults.y == stepResult.toMinus) {
-        if (!selfPlayer.catchBall(ballPos)) {
-          enemyPlayer.score++;
-          timer.cancel();
-          _showDialog(selfOrEnemyDied.selfDied);
-          // resetGame();
-        } else {
-          x = enemyPlayer.simulateBallArrival(ballPos);
+      if (stepResults.y == stepResult.toMinus) {
+        if (startBall) {
+          startBall = false;
+          x = enemyPlayer.calcBallArrivalFromCenter(ballPos);
           xIsSet = true;
-          print('enemyPos($enemyX) is set to: $x');
+          print('start enemyPos: $x');
+        } else {
+          if (!selfPlayer.catchBall(ballPos)) {
+            enemyPlayer.score++;
+            timer.cancel();
+            _showDialog(selfOrEnemyDied.selfDied);
+            // resetGame();
+          } else {
+            x = enemyPlayer.simulateBallArrival(ballPos);
+            xIsSet = true;
+            print('enemyPos($enemyX) is set to: $x');
+          }
         }
       }
 
@@ -110,7 +112,8 @@ class _HomePageState extends State<HomePage> {
         });
       }
 
-      if (isEnemyDead()) {
+      if (stepResults.y == stepResult.toPlus &&
+          !enemyPlayer.catchBall(ballPos)) {
         playerScore++;
         enemyPlayer.diff = (ballX - enemyPlayer.x).abs();
         print(enemyPlayer.diff);
