@@ -32,13 +32,13 @@ class BallPos {
   final Bouncer bY;
 
   BallPos(double dx, double dy, {xf = CENTERTOSIDE, yf = HOMETOAWAY / 2})
-      : bX = Bouncer(dx, wall: xf),
-        bY = Bouncer(dy, wall: yf);
+      : bX = FullBouncer(dx, wall: xf),
+        bY = FullBouncer(dy, wall: yf);
 
   // angle[radian]
   BallPos.withAngleDivider(double angle, int divider, {xf = 1.0, yf = 1.0})
-      : bY = Bouncer(1 / divider, wall: yf),
-        bX = Bouncer(tan(angle) / divider, wall: xf);
+      : bY = FullBouncer(1 / divider, wall: yf),
+        bX = FullBouncer(tan(angle) / divider, wall: xf);
 
   BallPos.withBouncers(Bouncer xB, Bouncer yB)
       : bY = yB,
@@ -53,7 +53,12 @@ class BallPos {
 
   static arrivalXFromCenter(double ballAngle) => tan(ballAngle / 360 * 2 * pi);
 
-  static arrivalXFromAway(double ballAngle) {}
+  double calcLandingXToAway() {
+    BallPos iP = BallPos.withBouncers(
+        HalfBouncer(bX.d, x: bX.x + 1, wall: 2 * bX.w),
+        HalfBouncer(bY.d, x: bY.x + 1, wall: 2 * bY.w));
+    var xd = dx / dy * (2 - x);
+  }
 }
 
 enum stepResult { toPlus, toMinus, keep }
@@ -64,8 +69,15 @@ class StepResults {
   StepResults(this.x, this.y);
 }
 
+abstract class Bouncer {
+  double get x;
+  double get d;
+  double get w;
+  stepResult step();
+}
+
 // between -wall and wall bouncing number
-class Bouncer {
+class FullBouncer implements Bouncer {
   double _x;
   //double _d;
   final double _e;
@@ -73,9 +85,10 @@ class Bouncer {
   final double wall;
   double get x => _x;
   double get d => _neg ? -_e : _e;
+  double get w => wall;
 
   /// wall > 0
-  Bouncer(d, {x = 0.0, wall = 1})
+  FullBouncer(d, {x = 0.0, wall = 1})
       : this._e = d.abs(),
         _neg = d < 0,
         _x = x,
@@ -84,11 +97,46 @@ class Bouncer {
   /// return: bounced ? _neg : null
   stepResult step() {
     final a = _x + d;
-    if (a <= -wall) {
+    if (a < -wall) {
       _x = -a - 2 * wall;
       _neg = false;
       return stepResult.toPlus;
-    } else if (a >= wall) {
+    } else if (a > wall) {
+      _x = 2 * wall - a;
+      _neg = true;
+      return stepResult.toMinus;
+    }
+    _x = a;
+    return stepResult.keep;
+  }
+}
+
+// between 0 and wall bouncing number
+class HalfBouncer implements Bouncer {
+  double _x;
+  //double _d;
+  final double _e;
+  bool _neg;
+  final double wall;
+  double get x => _x;
+  double get d => _neg ? -_e : _e;
+  double get w => wall;
+
+  /// wall > 0
+  HalfBouncer(d, {x = 0.0, wall = 2})
+      : this._e = d.abs(),
+        _neg = d < 0,
+        _x = x,
+        this.wall = wall;
+
+  /// return: bounced ? _neg : null
+  stepResult step() {
+    final a = _x + d;
+    if (a < 0) {
+      _x = -a;
+      _neg = false;
+      return stepResult.toPlus;
+    } else if (a > wall) {
       _x = 2 * wall - a;
       _neg = true;
       return stepResult.toMinus;
