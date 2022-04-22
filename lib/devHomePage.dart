@@ -77,17 +77,17 @@ class _DevHomePageState extends State<DevHomePage> {
     var startBall = true;
 
     final ballArrivalPos = Player.calcBallArrivalPos(ballPos);
-    logger.info('ballArrivalPos is calculated as: $ballArrivalPos');
+    logger.info('ballArrivalPos 1st: $ballArrivalPos');
     if (ballPos.dy > 0) {
       setState(() {
-        playerX = ballArrivalPos;
+        playerX = selfPlayer.x = ballArrivalPos;
       });
-      logger.info('playerX state is set to: $ballArrivalPos');
+      logger.info('playerX 1st to: $ballArrivalPos');
     } else {
       setState(() {
-        enemyX = ballArrivalPos;
+        enemyX = enemyPlayer.x = ballArrivalPos;
       });
-      logger.info('enemyX state is set to: $ballArrivalPos');
+      logger.info('enemyX 1st to: $ballArrivalPos');
     }
 
     Timer.periodic(Duration(milliseconds: timerRep), (timer) {
@@ -99,14 +99,14 @@ class _DevHomePageState extends State<DevHomePage> {
       });
       if (!gameStarted) timer.cancel();
 
-      double x = 0;
-      bool xIsSet = false;
+      double x = 2 * CENTERTOSIDE;
       if (stepResults.y == stepResult.toMinus) {
+        assert(ballPos.dy < 0);
+        x = Player.calcBallArrivalPos(ballPos);
+        logger.info('x: $ballArrivalPos');
         if (startBall) {
           startBall = false;
-          x = enemyPlayer.calcBallArrivalFromCenter(ballPos);
-          xIsSet = true;
-          print('start enemyPos: $x');
+          // x = enemyPlayer.calcBallArrivalFromCenter(ballPos);
         } else {
           if (!selfPlayer.catchBall(ballPos)) {
             enemyPlayer.score++;
@@ -115,17 +115,17 @@ class _DevHomePageState extends State<DevHomePage> {
             // resetGame();
           } else {
             // x = enemyPlayer.simulateBallArrival(ballPos);
-            x = Player.calcBallArrivalPos(ballPos);
-            xIsSet = true;
-            print('enemyPos($enemyX) is set to: $x');
+            // x = Player.calcBallArrivalPos(ballPos);
+            print('enemyPos($enemyX) is to: $x');
           }
         }
       }
 
-      if (xIsSet) {
-        assert(x.abs() <= CENTERTOSIDE);
+      if (x != 2 * CENTERTOSIDE) {
+        // assert(x.abs() <= CENTERTOSIDE);
         setState(() {
           // moveEnemyTo(x);
+          logger.info('enemyX is set: $x');
           enemyX = enemyPlayer.x = x;
         });
       }
@@ -213,12 +213,13 @@ class _DevHomePageState extends State<DevHomePage> {
   void resetGame() {
     Navigator.pop(context);
     setState(() {
-      gameStarted = false;
+      gameStarted = true;
       ballX = 0;
       ballY = 0;
       selfPlayer.x = -0.2;
       enemyPlayer.x = -0.2;
     });
+    logger.info('resetGame');
   }
 
   bool isPlayerDead() {

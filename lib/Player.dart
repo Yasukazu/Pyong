@@ -55,7 +55,7 @@ class Player {
     final h = (b * bp.dy / bp.dx).abs();
     final nY = bp.y + ((bp.dy < 0) ? -h : h);
     final nX = aL < -bp.w ? -bp.w : bp.w;
-    final nBp = BallPos(bp.dx, bp.dy, x: nX, y: nY);
+    final nBp = BallPos(-bp.dx, bp.dy, x: nX, y: nY);
     logger.info(
         'Call recursively calcBallArrivalPos with BallPos(${bp.dx}, ${bp.dy}, $nX, $nY).');
     return calcBallArrivalPos(nBp);
