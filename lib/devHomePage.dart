@@ -76,7 +76,7 @@ class _DevHomePageState extends State<DevHomePage> {
         'ballPos: x=${ballPos.x}, y=${ballPos.y}, dx=${ballPos.dx}, dy=${ballPos.dy}');
     var startBall = true;
 
-    final ballArrivalPos = Player.calcBallArrivalPos(ballPos);
+    final ballArrivalPos = Player.calcBallArrivalPos(ballPos, gameStarted);
     logger.info('ballArrivalPos 1st: $ballArrivalPos');
     if (ballPos.dy > 0) {
       setState(() {
@@ -108,7 +108,7 @@ class _DevHomePageState extends State<DevHomePage> {
             _showDialog(selfOrEnemyDied.selfDied);
           } else
             setState(() {
-              enemyX = enemyPlayer.x = Player.calcBallArrivalPos(ballPos);
+              enemyX = enemyPlayer.x = Player.calcBallArrivalPos(ballPos, startBall);
               logger.info('enemyX is set: $enemyX');
             });
           break;
@@ -119,7 +119,7 @@ class _DevHomePageState extends State<DevHomePage> {
             _showDialog(selfOrEnemyDied.enemyDied);
           } else
             setState(() {
-              playerX = selfPlayer.x = Player.calcBallArrivalPos(ballPos);
+              playerX = selfPlayer.x = Player.calcBallArrivalPos(ballPos, startBall);
               logger.info('playerX is set: $playerX');
             });
 

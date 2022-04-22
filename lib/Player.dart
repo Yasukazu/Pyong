@@ -34,19 +34,35 @@ class Player {
     return result;
   }
 
-  /* double estimateArrivingPos(x, y, dx, dy) {
-    assert(dy < 0);
-    BallPos iP = BallPos.withBouncers(HalfBouncer(dx, x: x + 1, wall: 2 * bX.w),
-        HalfBouncer(dy, x: y + 1, wall: 2 * bY.w));
-    var xd = dx / dy * (2 - x);
-  } */
+  static double _calcBallArrivalPos2(x, dx, dy, side, away, {depth = 0}) {
+    if (depth > 2) throw Exception('Recursive call more than twice!');
+    final a = x + away * dx / dy;
+    if (a > 0 && a < side) return a;
+    final yL = (side - x) * dy / dx;
+    final nAway = away - yL;
+    logger.info(
+          'call _calcBallArrivalPos2 with ($side, ${-dx}, $dy, $side, $nAway, ${depth + 1}.');
+    return _calcBallArrivalPos2(side, -dx, dy, side, nAway, depth: depth + 1);
+  }
 
-  static double calcBallArrivalPos(BallPos bp, {centerToSideWall = 1.0}) {
-    final away = bp.dy > 0 ? -HOMETOAWAY / 2 : HOMETOAWAY / 2;
-    final yL = (away - bp.y).abs();
-    final xL = (yL * bp.dx / bp.dy).abs();
-    final aL = bp.x + xL * (bp.dx < 0 ? -1 : 1);
-    assert(bp.w > 0);
+  static double calcBallArrivalPos(BallPos bp, bool isStart) {
+    if (bp.dy > 0) {
+      // calc for self player
+      logger.info(
+          'call _calcBallArrivalPos2 with (${bp.x + bp.toSide}, ${bp.dx}, ${bp.dy}, .. ');
+      return _calcBallArrivalPos2(
+          bp.x + bp.toSide, bp.dx, bp.dy, 2 * bp.toSide, isStart ? bp.homeToAway / 2 : bp.homeToAway);
+    } else {
+      logger.info(
+          'call _calcBallArrivalPos2 with (${bp.x + bp.toSide}, ${bp.dx}, ${-bp.dy}, .. ');
+      return _calcBallArrivalPos2(
+          bp.x + bp.toSide, bp.dx, -bp.dy, 2 * bp.toSide, isStart ? bp.homeToAway / 2 : bp.homeToAway);
+    }
+  }
+
+  /*
+    final xL = away * bp.dx / bp.dy;
+    final aL = bp.x + xL;
     if (aL >= -bp.w && aL <= bp.w) {
       logger.info('Return $aL as ball arrival position.');
       return aL;
@@ -54,13 +70,14 @@ class Player {
     final b = bp.w - bp.x.abs();
     assert(b > 0);
     final h = (b * bp.dy / bp.dx).abs();
-    final nY = bp.y + ((bp.dy < 0) ? -h : h);
+    final nY = (bp.dy < 0) ? -h : h;
     final nX = aL < -bp.w ? -bp.w : bp.w;
     final nBp = BallPos(-bp.dx, bp.dy, x: nX, y: nY);
+    final yL = (xL * bp.dy / bp.dx).abs();
+    final nAway = away - yL;
     logger.info(
-        'Call recursively calcBallArrivalPos with BallPos(${-bp.dx}, ${bp.dy}, $nX, $nY).');
-    return calcBallArrivalPos(nBp);
-  }
+        'Call recursively calcBallArrivalPos with BallPos(${-bp.dx}, ${bp.dy}, $nX, $nY) and away=$nAway.');
+    return calcBallArrivalPos(nBp, away: nAway); */
 }
 
 class SelfPlayer extends Player {

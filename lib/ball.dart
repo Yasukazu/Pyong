@@ -121,7 +121,7 @@ class HalfBouncer implements Bouncer {
   double get w => wall;
 
   /// wall > 0
-  HalfBouncer(d, {x = Bouncer.XDFLT, wall = 2 * Bouncer.WDFLT})
+  HalfBouncer(d, {x = Bouncer.XDFLT, wall = Bouncer.WDFLT})
       : this._e = d.abs(),
         _neg = d < 0,
         _x = x,
