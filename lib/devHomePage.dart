@@ -92,52 +92,43 @@ class _DevHomePageState extends State<DevHomePage> {
 
     Timer.periodic(Duration(milliseconds: timerRep), (timer) {
       final stepResults = ballPos.step();
-      // xy.forEach((e) { // debug print print('$e, '); });
       setState(() {
         ballX = ballPos.x;
         ballY = ballPos.y;
       });
-      if (!gameStarted) timer.cancel();
-
-      double x = 2 * CENTERTOSIDE;
-      if (stepResults.y == stepResult.toMinus) {
-        assert(ballPos.dy < 0);
-        x = Player.calcBallArrivalPos(ballPos);
-        logger.info('x: $ballArrivalPos');
-        if (startBall) {
-          startBall = false;
-          // x = enemyPlayer.calcBallArrivalFromCenter(ballPos);
-        } else {
+      if (!gameStarted) {
+        timer.cancel();
+        logger.info('timer.cancel');
+      }
+      switch (stepResults.y) {
+        case stepResult.toMinus:
           if (!selfPlayer.catchBall(ballPos)) {
             enemyPlayer.score++;
             timer.cancel();
             _showDialog(selfOrEnemyDied.selfDied);
-            // resetGame();
-          } else {
-            // x = enemyPlayer.simulateBallArrival(ballPos);
-            // x = Player.calcBallArrivalPos(ballPos);
-            print('enemyPos($enemyX) is to: $x');
-          }
-        }
-      }
+          } else
+            setState(() {
+              enemyX = enemyPlayer.x = Player.calcBallArrivalPos(ballPos);
+              logger.info('enemyX is set: $enemyX');
+            });
+          break;
+        case stepResult.toPlus:
+          if (!enemyPlayer.catchBall(ballPos)) {
+            selfPlayer.score++;
+            timer.cancel();
+            _showDialog(selfOrEnemyDied.enemyDied);
+          } else
+            setState(() {
+              playerX = selfPlayer.x = Player.calcBallArrivalPos(ballPos);
+              logger.info('playerX is set: $playerX');
+            });
 
-      if (x != 2 * CENTERTOSIDE) {
-        // assert(x.abs() <= CENTERTOSIDE);
-        setState(() {
-          // moveEnemyTo(x);
-          logger.info('enemyX is set: $x');
-          enemyX = enemyPlayer.x = x;
-        });
+          break;
+        default:
       }
-
-      if (stepResults.y == stepResult.toPlus &&
-          !enemyPlayer.catchBall(ballPos)) {
-        playerScore++;
-        enemyPlayer.diff = (ballX - enemyPlayer.x).abs();
-        print(enemyPlayer.diff);
-        timer.cancel();
-        _showDialog(selfOrEnemyDied.enemyDied);
-        // resetGame();
+      if (startBall) {
+        startBall = false;
+        logger.info('startBall is set false.');
       }
     });
   }

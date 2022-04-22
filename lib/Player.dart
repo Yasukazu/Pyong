@@ -42,7 +42,8 @@ class Player {
   } */
 
   static double calcBallArrivalPos(BallPos bp, {centerToSideWall = 1.0}) {
-    final yL = bp.homeToAway - bp.y.abs();
+    final away = bp.dy > 0 ? -HOMETOAWAY / 2 : HOMETOAWAY / 2;
+    final yL = (away - bp.y).abs();
     final xL = (yL * bp.dx / bp.dy).abs();
     final aL = bp.x + xL * (bp.dx < 0 ? -1 : 1);
     assert(bp.w > 0);
@@ -57,7 +58,7 @@ class Player {
     final nX = aL < -bp.w ? -bp.w : bp.w;
     final nBp = BallPos(-bp.dx, bp.dy, x: nX, y: nY);
     logger.info(
-        'Call recursively calcBallArrivalPos with BallPos(${bp.dx}, ${bp.dy}, $nX, $nY).');
+        'Call recursively calcBallArrivalPos with BallPos(${-bp.dx}, ${bp.dy}, $nX, $nY).');
     return calcBallArrivalPos(nBp);
   }
 }
