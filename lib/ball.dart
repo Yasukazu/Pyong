@@ -26,14 +26,16 @@ class BallPos {
   double get y => bY.x;
   double get dx => bX.d;
   double get dy => bY.d;
-  double get toSide => bX.wall; // side from home
-  double get homeToAway => 2 * bY.wall; // home from center
+  double get toSide => bX.w; // side from home
+  double get w => toSide; // side from home
+  double get homeToAway => 2 * bY.w; // home from center
+  double get h => homeToAway; // home from center
   final Bouncer bX;
   final Bouncer bY;
 
-  BallPos(double dx, double dy, {xf = CENTERTOSIDE, yf = HOMETOAWAY / 2})
-      : bX = FullBouncer(dx, wall: xf),
-        bY = FullBouncer(dy, wall: yf);
+  BallPos(double dx, double dy, {xf = CENTERTOSIDE, yf = HOMETOAWAY / 2, x = Bouncer.XDFLT, y = Bouncer.XDFLT})
+      : bX = FullBouncer(dx, wall: xf, x: x),
+        bY = FullBouncer(dy, wall: yf, x: y);
 
   // angle[radian]
   BallPos.withAngleDivider(double angle, int divider, {xf = 1.0, yf = 1.0})
@@ -53,12 +55,6 @@ class BallPos {
 
   static arrivalXFromCenter(double ballAngle) => tan(ballAngle / 360 * 2 * pi);
 
-  double calcLandingXToAway() {
-    BallPos iP = BallPos.withBouncers(
-        HalfBouncer(bX.d, x: bX.x + 1, wall: 2 * bX.w),
-        HalfBouncer(bY.d, x: bY.x + 1, wall: 2 * bY.w));
-    var xd = dx / dy * (2 - x);
-  }
 }
 
 enum stepResult { toPlus, toMinus, keep }
@@ -74,6 +70,8 @@ abstract class Bouncer {
   double get d;
   double get w;
   stepResult step();
+  static const XDFLT = 0.0;
+  static const WDFLT = 1.0;
 }
 
 // between -wall and wall bouncing number
@@ -88,7 +86,7 @@ class FullBouncer implements Bouncer {
   double get w => wall;
 
   /// wall > 0
-  FullBouncer(d, {x = 0.0, wall = 1})
+  FullBouncer(d, {x = Bouncer.XDFLT, wall = Bouncer.WDFLT})
       : this._e = d.abs(),
         _neg = d < 0,
         _x = x,
@@ -123,7 +121,7 @@ class HalfBouncer implements Bouncer {
   double get w => wall;
 
   /// wall > 0
-  HalfBouncer(d, {x = 0.0, wall = 2})
+  HalfBouncer(d, {x = Bouncer.XDFLT, wall = 2 * Bouncer.WDFLT})
       : this._e = d.abs(),
         _neg = d < 0,
         _x = x,

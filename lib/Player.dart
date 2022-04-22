@@ -11,7 +11,17 @@ class PlayerColor {
 
 // Player class
 class Player {
-  var x = -0.0; // starting horizontal position
+  var _x = 0.0; // starting horizontal position
+  double get x => _x;
+  set x(double d) {
+    if (d < -CENTERTOSIDE)
+      _x = -CENTERTOSIDE;
+    else if (d > CENTERTOSIDE)
+      _x = CENTERTOSIDE;
+    else
+      _x = d;
+  }
+
   final double y;
   var score = 0;
   final Color color;
@@ -23,11 +33,37 @@ class Player {
     print('in Player.catchBall: result = $result');
     return result;
   }
+
+  /* double estimateArrivingPos(x, y, dx, dy) {
+    assert(dy < 0);
+    BallPos iP = BallPos.withBouncers(HalfBouncer(dx, x: x + 1, wall: 2 * bX.w),
+        HalfBouncer(dy, x: y + 1, wall: 2 * bY.w));
+    var xd = dx / dy * (2 - x);
+  } */
+
+  static double calcBallArrivalPos(BallPos bp, {centerToSideWall = 1.0}) {
+    final yL = bp.homeToAway - bp.y.abs();
+    final xL = (yL * bp.dx / bp.dy).abs();
+    final aL = bp.x + xL * (bp.dx < 0 ? -1 : 1);
+    assert(bp.w > 0);
+    if (aL >= -bp.w && aL <= bp.w) {
+      logger.info('Return $aL as ball arrival position.');
+      return aL;
+    }
+    final b = bp.w - bp.x.abs();
+    assert(b > 0);
+    final h = (b * bp.dy / bp.dx).abs();
+    final nY = bp.y + ((bp.dy < 0) ? -h : h);
+    final nX = aL < -bp.w ? -bp.w : bp.w;
+    final nBp = BallPos(bp.dx, bp.dy, x: nX, y: nY);
+    logger.info(
+        'Call recursively calcBallArrivalPos with BallPos(${bp.dx}, ${bp.dy}, $nX, $nY).');
+    return calcBallArrivalPos(nBp);
+  }
 }
 
 class SelfPlayer extends Player {
   SelfPlayer(double width) : super(PLAYERFROMCENTER, PlayerColor.self, width);
-
 }
 
 class EnemyPlayer extends Player {
@@ -35,15 +71,6 @@ class EnemyPlayer extends Player {
       : super(-PLAYERFROMCENTER, PlayerColor.enemy, width);
 
   double calcBallArrivalFromCenter(BallPos bp) => y * bp.dx / bp.dy;
-
-  double calcBallArrivalFromAway(BallPos bp, {centerToSideWall = 1.0}) {
-    final a = bp.x + 2 * y * bp.dx / bp.dy;
-    if (a <= centerToSideWall)
-      return a;
-    else {
-      return 2 * centerToSideWall - a;
-    }
-  }
 
   double calcBallArrival2(BallPos bp) {
     assert(CENTERTOSIDE <= 1.0);
@@ -59,6 +86,7 @@ class EnemyPlayer extends Player {
     return bp.x.sign * naX;
   }
 
+  /*
   double simulateBallArrival(BallPos bp, {centerToSideWall = 1.0}) {
     const m = 2;
     Bouncer bX = Bouncer(m * bp.dx, x: bp.x, wall: bp.bX.wall);
@@ -73,5 +101,5 @@ class EnemyPlayer extends Player {
       assert(x <= bp.bX.wall);
     }
     return x;
-  }
+  } */
 }

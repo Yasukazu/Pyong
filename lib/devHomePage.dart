@@ -6,10 +6,13 @@ import 'package:pong/ball.dart';
 import 'package:pong/brick.dart';
 import 'package:pong/welcomeScreen.dart';
 import 'package:pong/Player.dart';
+import 'package:logging/logging.dart';
 
-class HomePage extends StatefulWidget {
+final logger = Logger('devMainLogger');
+
+class DevHomePage extends StatefulWidget {
   @override
-  State<StatefulWidget> createState() => _HomePageState();
+  State<StatefulWidget> createState() => _DevHomePageState();
 }
 
 enum direction { UP, DOWN, LEFT, RIGHT }
@@ -22,7 +25,7 @@ const HOMETOAWAY = 2 * (CENTERTOPLAYER - PLAYERTOBACKWALL);
 
 enum selfOrEnemyDied { selfDied, enemyDied }
 
-class _HomePageState extends State<HomePage> {
+class _DevHomePageState extends State<DevHomePage> {
   //LOGIC
   // common params:
   static const selfBrickWidth = 0.5;
@@ -31,17 +34,17 @@ class _HomePageState extends State<HomePage> {
   int awayToHomeTime = 1000; // miliseconds
   final timerRep = 20; // ms
   double get ballMoveD => timerRep / awayToHomeTime;
-  //player variables for setState
+  //player members for setState
   double playerX = 0;
   int playerScore = 0;
   final selfPlayer = SelfPlayer(selfBrickWidth);
 
-  // enemy variables for setState
+  // enemy members for setState
   double enemyX = 0;
   int enemyScore = 0;
   final enemyPlayer = EnemyPlayer(enemyBrickWidth);
 
-  //ball
+  //ball members for setState
   double ballX = 0;
   double ballY = 0;
   var ballPos = BallPos(0, 0);
@@ -66,12 +69,26 @@ class _HomePageState extends State<HomePage> {
     final int divider = awayToHomeTime ~/ timerRep; // divide to get an integer
     double angle = angleGenerator.current; // generateAngle();
     angleGenerator.moveNext();
-    print('angle: ${angle / pi * 180}');
+    logger.info('angle: ${angle / pi * 180}');
     // degreeToRadian(40 + (startFromEnemy ? 180 : 0)); // radian from degree
     ballPos = BallPos.withAngleDivider(angle, divider, yf: PLAYERFROMCENTER);
     print(
         'ballPos: x=${ballPos.x}, y=${ballPos.y}, dx=${ballPos.dx}, dy=${ballPos.dy}');
     var startBall = true;
+
+    final ballArrivalPos = Player.calcBallArrivalPos(ballPos);
+    logger.info('ballArrivalPos is calculated as: $ballArrivalPos');
+    if (ballPos.dy > 0) {
+      setState(() {
+        playerX = ballArrivalPos;
+      });
+      logger.info('playerX state is set to: $ballArrivalPos');
+    } else {
+      setState(() {
+        enemyX = ballArrivalPos;
+      });
+      logger.info('enemyX state is set to: $ballArrivalPos');
+    }
 
     Timer.periodic(Duration(milliseconds: timerRep), (timer) {
       final stepResults = ballPos.step();
@@ -97,7 +114,8 @@ class _HomePageState extends State<HomePage> {
             _showDialog(selfOrEnemyDied.selfDied);
             // resetGame();
           } else {
-            x = enemyPlayer.simulateBallArrival(ballPos);
+            // x = enemyPlayer.simulateBallArrival(ballPos);
+            x = Player.calcBallArrivalPos(ballPos);
             xIsSet = true;
             print('enemyPos($enemyX) is set to: $x');
           }
