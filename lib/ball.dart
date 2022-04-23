@@ -33,7 +33,11 @@ class BallPos {
   final Bouncer bX;
   final Bouncer bY;
 
-  BallPos(double dx, double dy, {xf = CENTERTOSIDE, yf = HOMETOAWAY / 2, x = Bouncer.XDFLT, y = Bouncer.XDFLT})
+  BallPos(double dx, double dy,
+      {xf = CENTERTOSIDE,
+      yf = HOMETOAWAY / 2,
+      x = Bouncer.XDFLT,
+      y = Bouncer.XDFLT})
       : bX = FullBouncer(dx, wall: xf, x: x),
         bY = FullBouncer(dy, wall: yf, x: y);
 
@@ -48,13 +52,22 @@ class BallPos {
 
   /// return: [x._neg, y._neg]
   StepResults step() {
-    var x = bX.step();
-    var y = bY.step();
+    final x = bX.step();
+    final y = bY.step();
     return StepResults(x, y);
   }
 
-  static arrivalXFromCenter(double ballAngle) => tan(ballAngle / 360 * 2 * pi);
+  /// jump to wall
+  StepResults? jump() {
+    final x = bX.jumpCount();
+    final y = bY.jumpCount();
+    final n = min(x, y);
+    StepResults? sr;
+    for (int i = 0; i < n; ++i) sr = step();
+    return sr;
+  }
 
+  static arrivalXFromCenter(double ballAngle) => tan(ballAngle / 360 * 2 * pi);
 }
 
 enum stepResult { toPlus, toMinus, keep }
@@ -66,24 +79,40 @@ class StepResults {
 }
 
 abstract class Bouncer {
+  set x(v);
   double get x;
   double get d;
   double get w;
-  stepResult step();
+  bool get neg;
+  set neg(v);
   static const XDFLT = 0.0;
   static const WDFLT = 1.0;
+  stepResult step();
+
+  /// count how many steps to jump (about)
+  int jumpCount() => neg ? x ~/ d : (w - x) ~/ d;
+
+  /// jump until direction change
+  int jump() {
+    int n = 0;
+    while (step() == stepResult.keep) ++n;
+    return n;
+  }
 }
 
 // between -wall and wall bouncing number
-class FullBouncer implements Bouncer {
+class FullBouncer extends Bouncer {
   double _x;
   //double _d;
   final double _e;
   bool _neg;
   final double wall;
+  set x(v) => _x = v;
   double get x => _x;
   double get d => _neg ? -_e : _e;
   double get w => wall;
+  bool get neg => _neg;
+  set neg(v) => _neg = v;
 
   /// wall > 0
   FullBouncer(d, {x = Bouncer.XDFLT, wall = Bouncer.WDFLT})
@@ -110,15 +139,18 @@ class FullBouncer implements Bouncer {
 }
 
 // between 0 and wall bouncing number
-class HalfBouncer implements Bouncer {
+class HalfBouncer extends Bouncer {
   double _x;
   //double _d;
   final double _e;
   bool _neg;
   final double wall;
+  set x(v) => _x = v;
   double get x => _x;
   double get d => _neg ? -_e : _e;
   double get w => wall;
+  bool get neg => _neg;
+  set neg(v) => _neg = v;
 
   /// wall > 0
   HalfBouncer(d, {x = Bouncer.XDFLT, wall = Bouncer.WDFLT})
