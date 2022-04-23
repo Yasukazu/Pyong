@@ -65,7 +65,7 @@ class _DevHomePageState extends State<DevHomePage> {
   }
 
   /// try to find landing point; returns null if not found..
-  double? calcLandingPos(BallPos bp) {
+  /* double? calcLandingPos(BallPos bp) {
     BallPos vp = ballPos.clone();
     StepResults? srs;
     var limit = 10;
@@ -75,7 +75,7 @@ class _DevHomePageState extends State<DevHomePage> {
     } while (srs.y == stepResult.keep && --limit > 0);
     if (limit == 0) return null;
     return vp.x;
-  }
+  } */
 
   void startGame() {
     gameStarted = true;
@@ -88,9 +88,9 @@ class _DevHomePageState extends State<DevHomePage> {
     print(
         'ballPos: x=${ballPos.x}, y=${ballPos.y}, dx=${ballPos.dx}, dy=${ballPos.dy}');
     var startBall = true;
-    double? ballArrivalPos = calcLandingPos(ballPos);
+    double ballArrivalPos = ballPos.jumpDown(); // calcLandingPos(ballPos);
     // final ballArrivalPos = Player.calcBallArrivalPos(ballPos, gameStarted);
-    if (ballArrivalPos != null) {
+    if (ballArrivalPos != ballPos.x) {
       logger.info('ballArrivalPos 1st: $ballArrivalPos');
       if (ballPos.dy > 0) {
         setState(() {
@@ -123,8 +123,8 @@ class _DevHomePageState extends State<DevHomePage> {
             timer.cancel();
             _showDialog(selfOrEnemyDied.selfDied);
           } else {
-            final vPos = calcLandingPos(ballPos);
-            if (vPos != null)
+            final vPos = ballPos.jumpDown();
+            if (vPos != ballPos.x)
               setState(() {
                 enemyX = enemyPlayer.x =
                     vPos; // Player.calcBallArrivalPos(ballPos, startBall);
@@ -138,8 +138,8 @@ class _DevHomePageState extends State<DevHomePage> {
             timer.cancel();
             _showDialog(selfOrEnemyDied.enemyDied);
           } else {
-            final vPos = calcLandingPos(ballPos);
-            if (vPos != null)
+            final vPos = ballPos.jumpDown();
+            if (vPos != ballPos.x)
               setState(() {
                 playerX = selfPlayer.x =
                     vPos; // Player.calcBallArrivalPos(ballPos, startBall);

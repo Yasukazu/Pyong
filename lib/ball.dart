@@ -58,13 +58,21 @@ class BallPos {
   }
 
   /// jump to wall
-  StepResults? jump() {
-    final x = bX.jumpCount();
-    final y = bY.jumpCount();
-    final n = min(x, y);
-    StepResults? sr;
-    for (int i = 0; i < n; ++i) sr = step();
-    return sr;
+  double jumpDown() {
+    BallPos vp = this.clone();
+    const limit = 99;
+    var n = 0;
+    StepResults sr;
+    do {
+      sr = vp.step();
+    } while (sr.y == stepResult.keep && ++n < limit);
+    // final x = bX.jumpCount();
+    // final y = bY.jumpCount();
+    // final n = min(x, y);
+    // logger.info("$n steps jumpCount min.");
+    // StepResults? sr;
+    // for (int i = 0; i < n; ++i) sr = step();
+    return vp.x;
   }
 
   static arrivalXFromCenter(double ballAngle) => tan(ballAngle / 360 * 2 * pi);
