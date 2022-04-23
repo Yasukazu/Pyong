@@ -263,12 +263,13 @@ class _DevHomePageState extends State<DevHomePage> {
   }
 
   void moveLeft() {
-    setState(() {
       if (!(selfPlayer.x - moveLR < -1)) {
         selfPlayer.x -= moveLR;
       } else {
         selfPlayer.x = -1;
       }
+    setState(() {
+      playerX = selfPlayer.x;
     });
   }
 
@@ -278,6 +279,9 @@ class _DevHomePageState extends State<DevHomePage> {
     } else {
       selfPlayer.x = 1 - moveLR;
     }
+    setState(() {
+      playerX = selfPlayer.x;
+    });
   }
 
   @override
