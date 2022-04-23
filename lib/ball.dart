@@ -79,7 +79,11 @@ class BallPos {
 }
 
 extension Cloning on BallPos {
-  BallPos clone() => BallPos(this.dx, this.dy);
+  BallPos clone() {
+    final xB = FullBouncer(dx, x: x);
+    final yB = FullBouncer(dy, x: y);
+    return BallPos.withBouncers(xB, yB);
+  }
 }
 
 enum stepResult { toPlus, toMinus, keep }
