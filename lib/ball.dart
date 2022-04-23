@@ -70,6 +70,10 @@ class BallPos {
   static arrivalXFromCenter(double ballAngle) => tan(ballAngle / 360 * 2 * pi);
 }
 
+extension Cloning on BallPos {
+  BallPos clone() => BallPos(this.dx, this.dy);
+}
+
 enum stepResult { toPlus, toMinus, keep }
 
 class StepResults {

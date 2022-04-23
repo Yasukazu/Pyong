@@ -64,6 +64,19 @@ class _DevHomePageState extends State<DevHomePage> {
         xy[0] * (rand.nextBool() ? 1 : -1), xy[1] * (rand.nextBool() ? 1 : -1));
   }
 
+  /// try to find landing point; returns null if not found..
+  double? calcLandingPos(BallPos bp) {
+    BallPos vp = ballPos.clone();
+    StepResults? srs;
+    var limit = 10;
+    do {
+      srs = vp.jump();
+      if (srs == null) return null;
+    } while (srs.y == stepResult.keep && --limit > 0);
+    if (limit == 0) return null;
+    return vp.x;
+  }
+
   void startGame() {
     gameStarted = true;
     final int divider = awayToHomeTime ~/ timerRep; // divide to get an integer
@@ -75,20 +88,23 @@ class _DevHomePageState extends State<DevHomePage> {
     print(
         'ballPos: x=${ballPos.x}, y=${ballPos.y}, dx=${ballPos.dx}, dy=${ballPos.dy}');
     var startBall = true;
-
-    final ballArrivalPos = Player.calcBallArrivalPos(ballPos, gameStarted);
-    logger.info('ballArrivalPos 1st: $ballArrivalPos');
-    if (ballPos.dy > 0) {
-      setState(() {
-        playerX = selfPlayer.x = ballArrivalPos;
-      });
-      logger.info('playerX 1st to: $ballArrivalPos');
-    } else {
-      setState(() {
-        enemyX = enemyPlayer.x = ballArrivalPos;
-      });
-      logger.info('enemyX 1st to: $ballArrivalPos');
-    }
+    double? ballArrivalPos = calcLandingPos(ballPos);
+    // final ballArrivalPos = Player.calcBallArrivalPos(ballPos, gameStarted);
+    if (ballArrivalPos != null) {
+      logger.info('ballArrivalPos 1st: $ballArrivalPos');
+      if (ballPos.dy > 0) {
+        setState(() {
+          playerX = selfPlayer.x = ballArrivalPos;
+        });
+        logger.info('playerX 1st to: $ballArrivalPos');
+      } else {
+        setState(() {
+          enemyX = enemyPlayer.x = ballArrivalPos;
+        });
+        logger.info('enemyX 1st to: $ballArrivalPos');
+      }
+    } else
+      logger.warning('calcLandingPos returned null.');
 
     Timer.periodic(Duration(milliseconds: timerRep), (timer) {
       final stepResults = ballPos.step();
@@ -106,23 +122,30 @@ class _DevHomePageState extends State<DevHomePage> {
             enemyPlayer.score++;
             timer.cancel();
             _showDialog(selfOrEnemyDied.selfDied);
-          } else
-            setState(() {
-              enemyX = enemyPlayer.x = Player.calcBallArrivalPos(ballPos, startBall);
-              logger.info('enemyX is set: $enemyX');
-            });
+          } else {
+            final vPos = calcLandingPos(ballPos);
+            if (vPos != null)
+              setState(() {
+                enemyX = enemyPlayer.x =
+                    vPos; // Player.calcBallArrivalPos(ballPos, startBall);
+                logger.info('enemyX is set: $enemyX');
+              });
+          }
           break;
         case stepResult.toPlus:
           if (!enemyPlayer.catchBall(ballPos)) {
             selfPlayer.score++;
             timer.cancel();
             _showDialog(selfOrEnemyDied.enemyDied);
-          } else
-            setState(() {
-              playerX = selfPlayer.x = Player.calcBallArrivalPos(ballPos, startBall);
-              logger.info('playerX is set: $playerX');
-            });
-
+          } else {
+            final vPos = calcLandingPos(ballPos);
+            if (vPos != null)
+              setState(() {
+                playerX = selfPlayer.x =
+                    vPos; // Player.calcBallArrivalPos(ballPos, startBall);
+                logger.info('playerX is set: $playerX');
+              });
+          }
           break;
         default:
       }
