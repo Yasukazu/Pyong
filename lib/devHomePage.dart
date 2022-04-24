@@ -144,10 +144,11 @@ class _DevHomePageState extends State<DevHomePage> {
       switch (stepResults.y) {
         case stepResult.toMinus:
           logger.info("stepResult.toMinus.");
+          assert(playerX == ballPos.x);
           if (!selfPlayer.catchBall(ballPos)) {
             enemyPlayer.score++;
             setState(() {
-              ++enemyScore;
+              enemyScore = enemyPlayer.score;
             });
             timer.cancel();
             vCount = 0;
@@ -168,7 +169,7 @@ class _DevHomePageState extends State<DevHomePage> {
           if (!enemyPlayer.catchBall(ballPos)) {
             selfPlayer.score++;
             setState(() {
-              ++playerScore;
+              playerScore = selfPlayer.score;
             });
             timer.cancel();
             _showDialog(selfOrEnemyDied.enemyDied);
