@@ -25,7 +25,7 @@ class Player {
   final double y;
   var score = 0;
   final Color color;
-  final width;
+  final double width;
   var diff = 0.0; // keep lost ball reach
   Player(this.y, this.color, this.width);
   bool catchBall(BallPos bp) {

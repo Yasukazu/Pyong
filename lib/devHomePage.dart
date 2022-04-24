@@ -120,6 +120,9 @@ class _DevHomePageState extends State<DevHomePage> {
         case stepResult.toMinus:
           if (!selfPlayer.catchBall(ballPos)) {
             enemyPlayer.score++;
+            setState(() {
+              ++enemyScore;
+            });
             timer.cancel();
             _showDialog(selfOrEnemyDied.selfDied);
           } else {
@@ -135,17 +138,20 @@ class _DevHomePageState extends State<DevHomePage> {
         case stepResult.toPlus:
           if (!enemyPlayer.catchBall(ballPos)) {
             selfPlayer.score++;
+            setState(() {
+              ++playerScore;
+            });
             timer.cancel();
             _showDialog(selfOrEnemyDied.enemyDied);
-          } else {
+          } /* else { 
             final vPos = ballPos.jumpDown();
             if (vPos != ballPos.x)
               setState(() {
                 playerX = selfPlayer.x =
                     vPos; // Player.calcBallArrivalPos(ballPos, startBall);
                 logger.info('playerX is set: $playerX');
-              });
-          }
+              }); 
+          } */
           break;
         default:
       }
@@ -263,21 +269,21 @@ class _DevHomePageState extends State<DevHomePage> {
   }
 
   void moveLeft() {
-      if (!(selfPlayer.x - moveLR < -1)) {
-        selfPlayer.x -= moveLR;
-      } else {
-        selfPlayer.x = -1;
-      }
+    if (!(selfPlayer.x - moveLR - selfPlayer.width / 2 < -1)) {
+      selfPlayer.x -= moveLR;
+    } else {
+      selfPlayer.x = -1 + selfPlayer.width / 2;
+    }
     setState(() {
       playerX = selfPlayer.x;
     });
   }
 
   void moveRight() {
-    if (!(selfPlayer.x + moveLR > 1)) {
+    if (!(selfPlayer.x + moveLR + selfPlayer.width / 2 > 1)) {
       selfPlayer.x += moveLR;
     } else {
-      selfPlayer.x = 1 - moveLR;
+      selfPlayer.x = 1 - selfPlayer.width / 2;
     }
     setState(() {
       playerX = selfPlayer.x;

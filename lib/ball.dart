@@ -34,10 +34,10 @@ class BallPos {
   final Bouncer bY;
 
   BallPos(double dx, double dy,
-      {xf = CENTERTOSIDE,
-      yf = HOMETOAWAY / 2,
-      x = Bouncer.XDFLT,
-      y = Bouncer.XDFLT})
+      {x = Bouncer.XDFLT,
+      y = Bouncer.XDFLT,
+      xf = CENTERTOSIDE,
+      yf = HOMETOAWAY / 2})
       : bX = FullBouncer(dx, wall: xf, x: x),
         bY = FullBouncer(dy, wall: yf, x: y);
 
@@ -80,9 +80,11 @@ class BallPos {
 
 extension Cloning on BallPos {
   BallPos clone() {
+    return BallPos(dx, dy, x: x, y: y, xf: w, yf: h / 2);
+    /*
     final xB = FullBouncer(dx, x: x);
     final yB = FullBouncer(dy, x: y);
-    return BallPos.withBouncers(xB, yB);
+    return BallPos.withBouncers(xB, yB); */
   }
 }
 
