@@ -61,18 +61,20 @@ class BallPos {
   /// jump to wall
   Tuple2<double, int> jumpDown() {
     BallPos vp = this.clone();
-    const limit = 99;
+    // const limit = 65535;
     var n = 0;
     StepResults sr;
     do {
       sr = vp.step();
-    } while (sr.y == stepResult.keep && ++n < limit);
+      ++n;
+    } while (sr.y == stepResult.keep);
     // final x = bX.jumpCount();
     // final y = bY.jumpCount();
     // final n = min(x, y);
     // logger.info("$n steps jumpCount min.");
     // StepResults? sr;
     // for (int i = 0; i < n; ++i) sr = step();
+    logger.info("jumpDown returns with count: $n");
     return Tuple2(vp.x, n);
   }
 

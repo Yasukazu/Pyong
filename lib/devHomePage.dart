@@ -35,6 +35,7 @@ class _DevHomePageState extends State<DevHomePage> {
   int awayToHomeTime = 1000; // miliseconds
   final timerRep = 20; // ms
   double get ballMoveD => timerRep / awayToHomeTime;
+  final rand = Random(DateTime.now().millisecondsSinceEpoch);
   //player members for setState
   double playerX = 0;
   int playerScore = 0;
@@ -58,11 +59,20 @@ class _DevHomePageState extends State<DevHomePage> {
       [1.7, 1],
       [1, 0.7]
     ];
-    final rand = new Random();
+    // final rand = new Random();
     final elem = rand.nextInt(1);
     final xy = anglePairList[elem];
     return atan2(
         xy[0] * (rand.nextBool() ? 1 : -1), xy[1] * (rand.nextBool() ? 1 : -1));
+  }
+
+  void resetPositions() {
+    setState(() {
+      playerX = selfPlayer.x = 0;
+      enemyX = enemyPlayer.x = 0;
+      ballX = 0;
+      ballY = 0;
+    });
   }
 
   /// try to find landing point; returns null if not found..
@@ -86,7 +96,7 @@ class _DevHomePageState extends State<DevHomePage> {
     logger.info('angle: ${angle / pi * 180}');
     // degreeToRadian(40 + (startFromEnemy ? 180 : 0)); // radian from degree
     ballPos = BallPos.withAngleDivider(angle, divider, yf: PLAYERFROMCENTER);
-    print(
+    logger.info(
         'ballPos: x=${ballPos.x}, y=${ballPos.y}, dx=${ballPos.dx}, dy=${ballPos.dy}');
     var startBall = true;
     Tuple2<double, int> ballArrivalPosAndCount =
@@ -133,6 +143,7 @@ class _DevHomePageState extends State<DevHomePage> {
       }
       switch (stepResults.y) {
         case stepResult.toMinus:
+          logger.info("stepResult.toMinus.");
           if (!selfPlayer.catchBall(ballPos)) {
             enemyPlayer.score++;
             setState(() {
@@ -153,6 +164,7 @@ class _DevHomePageState extends State<DevHomePage> {
           }
           break;
         case stepResult.toPlus:
+          logger.info("stepResult.toPlus.");
           if (!enemyPlayer.catchBall(ballPos)) {
             selfPlayer.score++;
             setState(() {
@@ -257,8 +269,8 @@ class _DevHomePageState extends State<DevHomePage> {
       gameStarted = true;
       ballX = 0;
       ballY = 0;
-      selfPlayer.x = -0.2;
-      enemyPlayer.x = -0.2;
+      playerX = selfPlayer.x = 0;
+      enemyX = enemyPlayer.x = 0;
     });
     logger.info('resetGame');
   }
