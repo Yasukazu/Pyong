@@ -144,8 +144,10 @@ class _DevHomePageState extends State<DevHomePage> {
       switch (stepResults.y) {
         case stepResult.toMinus:
           logger.info("stepResult.toMinus.");
-          assert(playerX == ballPos.x);
-          if (!selfPlayer.catchBall(ballPos)) {
+          assert(ballX == ballPos.x);
+          var just = 0;
+          if ((just = selfPlayer.catchBall(ballPos)) != 0) {
+            logger.info('self catch ball: ${just < 0 ? 'under' : 'over'}');
             enemyPlayer.score++;
             setState(() {
               enemyScore = enemyPlayer.score;
@@ -166,7 +168,9 @@ class _DevHomePageState extends State<DevHomePage> {
           break;
         case stepResult.toPlus:
           logger.info("stepResult.toPlus.");
-          if (!enemyPlayer.catchBall(ballPos)) {
+          var just = 0;
+          if ((just = enemyPlayer.catchBall(ballPos)) != 0) {
+            logger.info('enemy catch ball: ${just < 0 ? 'under' : 'over'}');
             selfPlayer.score++;
             setState(() {
               playerScore = selfPlayer.score;

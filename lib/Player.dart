@@ -28,10 +28,13 @@ class Player {
   final double width;
   var diff = 0.0; // keep lost ball reach
   Player(this.y, this.color, this.width);
-  bool catchBall(BallPos bp) {
-    final result = bp.x >= x - width / 2 && bp.x <= x + width / 2;
-    print('in Player.catchBall: result = $result');
-    return result;
+
+  int catchBall(BallPos bp) {
+    final over = bp.x > (x + width / 2);
+    if (over) return 1;
+    final under = bp.x < (x - width / 2);
+    if (under) return -1;
+    return 0;
   }
 
   static double _calcBallArrivalPos2(x, dx, dy, side, away, {depth = 0}) {
@@ -41,7 +44,7 @@ class Player {
     final yL = (side - x) * dy / dx;
     final nAway = away - yL;
     logger.info(
-          'call _calcBallArrivalPos2 with ($side, ${-dx}, $dy, $side, $nAway, ${depth + 1}.');
+        'call _calcBallArrivalPos2 with ($side, ${-dx}, $dy, $side, $nAway, ${depth + 1}.');
     return _calcBallArrivalPos2(side, -dx, dy, side, nAway, depth: depth + 1);
   }
 
@@ -50,13 +53,13 @@ class Player {
       // calc for self player
       logger.info(
           'call _calcBallArrivalPos2 with (${bp.x + bp.toSide}, ${bp.dx}, ${bp.dy}, .. ');
-      return _calcBallArrivalPos2(
-          bp.x + bp.toSide, bp.dx, bp.dy, 2 * bp.toSide, isStart ? bp.homeToAway / 2 : bp.homeToAway);
+      return _calcBallArrivalPos2(bp.x + bp.toSide, bp.dx, bp.dy, 2 * bp.toSide,
+          isStart ? bp.homeToAway / 2 : bp.homeToAway);
     } else {
       logger.info(
           'call _calcBallArrivalPos2 with (${bp.x + bp.toSide}, ${bp.dx}, ${-bp.dy}, .. ');
-      return _calcBallArrivalPos2(
-          bp.x + bp.toSide, bp.dx, -bp.dy, 2 * bp.toSide, isStart ? bp.homeToAway / 2 : bp.homeToAway);
+      return _calcBallArrivalPos2(bp.x + bp.toSide, bp.dx, -bp.dy,
+          2 * bp.toSide, isStart ? bp.homeToAway / 2 : bp.homeToAway);
     }
   }
 
