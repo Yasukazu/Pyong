@@ -7,6 +7,7 @@ import 'package:pong/brick.dart';
 import 'package:pong/welcomeScreen.dart';
 import 'package:pong/Player.dart';
 import 'package:logging/logging.dart';
+import 'package:tuple/tuple.dart';
 
 final logger = Logger('devMainLogger');
 
@@ -88,7 +89,9 @@ class _DevHomePageState extends State<DevHomePage> {
     print(
         'ballPos: x=${ballPos.x}, y=${ballPos.y}, dx=${ballPos.dx}, dy=${ballPos.dy}');
     var startBall = true;
-    double ballArrivalPos = ballPos.jumpDown(); // calcLandingPos(ballPos);
+    Tuple2<double, int> ballArrivalPosAndCount =
+        ballPos.jumpDown(); // calcLandingPos(ballPos);
+    double ballArrivalPos = ballArrivalPosAndCount.item1;
     // final ballArrivalPos = Player.calcBallArrivalPos(ballPos, gameStarted);
     if (ballArrivalPos != ballPos.x) {
       logger.info('ballArrivalPos 1st: $ballArrivalPos');
@@ -106,12 +109,24 @@ class _DevHomePageState extends State<DevHomePage> {
     } else
       logger.warning('calcLandingPos returned null.');
 
+    var vPos = enemyX;
+    Tuple2<double, int> vPosAndCount = Tuple2(vPos, 0);
+    double vInch = 0.0;
+    int vCount = 0;
     Timer.periodic(Duration(milliseconds: timerRep), (timer) {
       final stepResults = ballPos.step();
       setState(() {
+        // ball visual move
         ballX = ballPos.x;
         ballY = ballPos.y;
       });
+      if (vCount > 0) {
+        enemyPlayer.x += vInch;
+        vCount--;
+        setState(() {
+          enemyX = enemyPlayer.x;
+        });
+      }
       if (!gameStarted) {
         timer.cancel();
         logger.info('timer.cancel');
@@ -124,15 +139,17 @@ class _DevHomePageState extends State<DevHomePage> {
               ++enemyScore;
             });
             timer.cancel();
+            vCount = 0;
+            vInch = 0;
             _showDialog(selfOrEnemyDied.selfDied);
           } else {
-            final vPos = ballPos.jumpDown();
-            if (vPos != ballPos.x)
-              setState(() {
-                enemyX = enemyPlayer.x =
-                    vPos; // Player.calcBallArrivalPos(ballPos, startBall);
-                logger.info('enemyX is set: $enemyX');
-              });
+            vPosAndCount = ballPos.jumpDown();
+            vPos = vPosAndCount.item1;
+            if (vPos != ballPos.x) {
+              logger.info('vPos($vPos) differs from enemyX($enemyX).');
+              vCount = vPosAndCount.item2;
+              vInch = (vPos - enemyX) / vCount;
+            }
           }
           break;
         case stepResult.toPlus:
@@ -143,7 +160,11 @@ class _DevHomePageState extends State<DevHomePage> {
             });
             timer.cancel();
             _showDialog(selfOrEnemyDied.enemyDied);
-          } /* else { 
+          } else {
+            vCount = 0;
+            vInch = 0;
+          }
+          /* else { 
             final vPos = ballPos.jumpDown();
             if (vPos != ballPos.x)
               setState(() {

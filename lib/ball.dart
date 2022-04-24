@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'dart:math';
 import 'package:pong/devHomePage.dart';
+import 'package:tuple/tuple.dart';
 
 class Ball extends StatelessWidget {
   final x;
@@ -58,7 +59,7 @@ class BallPos {
   }
 
   /// jump to wall
-  double jumpDown() {
+  Tuple2<double, int> jumpDown() {
     BallPos vp = this.clone();
     const limit = 99;
     var n = 0;
@@ -72,7 +73,7 @@ class BallPos {
     // logger.info("$n steps jumpCount min.");
     // StepResults? sr;
     // for (int i = 0; i < n; ++i) sr = step();
-    return vp.x;
+    return Tuple2(vp.x, n);
   }
 
   static arrivalXFromCenter(double ballAngle) => tan(ballAngle / 360 * 2 * pi);
