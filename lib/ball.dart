@@ -33,6 +33,8 @@ class BallPos {
   double get h => homeToAway; // home from center
   final Bouncer bX;
   final Bouncer bY;
+  double _xC = 0; // carry or borrow
+  double _yC = 0;
 
   BallPos(double dx, double dy,
       {x = Bouncer.XDFLT,
@@ -181,8 +183,8 @@ class HalfBouncer extends Bouncer {
         this.wall = wall;
 
   /// return: bounced ? _neg : null
-  stepResult step() {
-    final a = _x + d;
+  stepResult step([double carry = 0]) {
+    final a = _x + d + carry;
     if (a < 0) {
       _x = -a;
       _neg = false;
