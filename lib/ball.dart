@@ -55,8 +55,20 @@ class BallPos {
 
   /// return: [x._neg, y._neg]
   StepResults step() {
-    final x = bX.step();
-    final y = bY.step();
+    double x;
+    double y;
+    if (xC != 0) {
+      x = bX.step(xC);
+      xC = 0;
+    }
+    else
+      x = bX.step();
+    if (yC != 0) {
+      y = bY.step(yC);
+      yC = 0;
+    }
+    else
+      y = bY.step();
     return StepResults(x, y);
   }
 
@@ -145,8 +157,8 @@ class FullBouncer extends Bouncer {
         this.wall = wall;
 
   /// return: bounced ? _neg : null
-  stepResult step() {
-    final a = _x + d;
+  stepResult step([double carry = 0]) { 
+    final a = _x + d + carry;
     if (a < -wall) {
       _x = -a - 2 * wall;
       _neg = false;
