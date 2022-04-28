@@ -143,7 +143,7 @@ class _DevHomePageState extends State<DevHomePage> {
       }
       switch (stepResults.y) {
         case stepResult.toMinus:
-          logger.info("stepResult.toMinus.");
+          logger.info("Upward ball: stepResult.toMinus.");
           assert(ballX == ballPos.x);
           var just = 0;
           if ((just = selfPlayer.catchBall(ballPos)) != 0) {
@@ -157,17 +157,24 @@ class _DevHomePageState extends State<DevHomePage> {
             vInch = 0;
             _showDialog(selfOrEnemyDied.selfDied);
           } else {
+            final calculatedBallPos = ballPos.calcBallLandingPos();
+            logger.fine("calculatedBallPos: $calculatedBallPos");
             vPosAndCount = ballPos.jumpDown();
             vPos = vPosAndCount.item1;
+            logger.fine("vPos: $vPos");
+            logger.fine(
+                "(vPos-calculatedBallPos).abs():${(vPos - calculatedBallPos).abs()}");
+            // assert((vPos - calculatedBallPos).abs() < 0.01);
             if (vPos != ballPos.x) {
-              logger.info('vPos($vPos) differs from enemyX($enemyX).');
+              logger.info(
+                  'calculatedBallPos($calculatedBallPos) :: ($vPos) differs from enemyX($enemyX).');
               vCount = vPosAndCount.item2;
-              vInch = (vPos - enemyX) / vCount;
+              vInch = (calculatedBallPos - enemyX) / vCount;
             }
           }
           break;
         case stepResult.toPlus:
-          logger.info("stepResult.toPlus.");
+          logger.info("Downward ball: stepResult.toPlus.");
           var just = 0;
           if ((just = enemyPlayer.catchBall(ballPos)) != 0) {
             logger.info('enemy catch ball: ${just < 0 ? 'under' : 'over'}');

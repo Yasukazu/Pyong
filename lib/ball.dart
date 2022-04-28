@@ -30,7 +30,7 @@ class BallPos {
   double get toSide => bX.w; // side from home
   double get w => toSide; // side from home
   double get homeToAway => 2 * bY.w; // home from center
-  double get h => homeToAway; // home from center
+  double get h => homeToAway / 2; // home from center
   final Bouncer bX;
   final Bouncer bY;
 
@@ -80,16 +80,30 @@ class BallPos {
 
   double _calcBallLandingPos() {
     const k = 0.01;
-    assert(y.abs() < k); // Tolerate 5% ball Y position from top side.
+    logger.fine("x: $x, y: $y, h: $h, w: $w, dx: $dx, dy: $dy");
+    assert(y.abs() < k ||
+        h / 2 - y.abs() < k); // Tolerate 5% ball Y position from top side.
     final w2 = w * 2;
     final h2 = h * 2;
-    final b = x + w; // offset +w
-    final c = dx / dy * h2;
-    final d = b + c;
+    final x2 = x + w; // offset +w
+    final ft = dx / dy * h2;
+    final d = x2 + ((ft > 0) ? -ft : ft);
+    logger.fine("x2: $x2, ft: $ft, d: $d");
     if (d >= 0 && d <= w2) {
+      logger.fine("d(x2 + ft): $d");
       return d;
     }
-    double hd = (d < 0) ? -d * dy / dx : (d - w2) * dy / dx;
+    // double hd = (d < 0) ? h * (ft - x) / ft : h * (x + ft - w2) / ft;
+    if (d < 0) {
+      final ft2 = ft - x2;
+      logger.fine("ft2: $ft2");
+      return ft2;
+    }
+    final ft3 = x2 + ft - w2;
+    final ft4 = w2 - ft3;
+    logger.fine("ft4: $ft4");
+    return ft4;
+    /* 
     assert(hd >= 0);
     if (d < 0) {
       assert(dy / dx < 0);
@@ -104,16 +118,22 @@ class BallPos {
     do {
       final foot = calcFoot().abs();
       if (foot <= w2) {
+        logger.info("foot: $foot");
         return isXAxis ? foot : w2 - foot;
       }
       hd = (foot - w2) * dy / dx;
       isXAxis = !isXAxis;
       ++revs;
     } while (revs < 127);
-    return -w;
+    logger.info("Error _calcBallLandingPos return.");
+    return -w; */
   }
 
-  double calcBallLandingPos() => _calcBallLandingPos() - w;
+  double calcBallLandingPos() {
+    final r = _calcBallLandingPos() - w;
+    logger.fine("r: $r");
+    return r;
+  }
 
   static arrivalXFromCenter(double ballAngle) => tan(ballAngle / 360 * 2 * pi);
 }
