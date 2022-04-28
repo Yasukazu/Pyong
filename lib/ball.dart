@@ -78,6 +78,43 @@ class BallPos {
     return Tuple2(vp.x, n);
   }
 
+  double _calcBallLandingPos() {
+    const k = 0.01;
+    assert(y.abs() < k); // Tolerate 5% ball Y position from top side.
+    final w2 = w * 2;
+    final h2 = h * 2;
+    final b = x + w; // offset +w
+    final c = dx / dy * h2;
+    final d = b + c;
+    if (d >= 0 && d <= w2) {
+      return d;
+    }
+    double hd = (d < 0) ? -d * dy / dx : (d - w2) * dy / dx;
+    assert(hd >= 0);
+    if (d < 0) {
+      assert(dy / dx < 0);
+    } else {
+      assert(dy / dx > 0);
+    }
+
+    double calcFoot() => hd * dx / dy;
+
+    bool isXAxis = d < 0;
+    int revs = 1;
+    do {
+      final foot = calcFoot().abs();
+      if (foot <= w2) {
+        return isXAxis ? foot : w2 - foot;
+      }
+      hd = (foot - w2) * dy / dx;
+      isXAxis = !isXAxis;
+      ++revs;
+    } while (revs < 127);
+    return -w;
+  }
+
+  double calcBallLandingPos() => _calcBallLandingPos() - w;
+
   static arrivalXFromCenter(double ballAngle) => tan(ballAngle / 360 * 2 * pi);
 }
 
