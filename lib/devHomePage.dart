@@ -5,7 +5,6 @@ import 'package:flutter/services.dart';
 import 'package:logging/logging.dart';
 import 'package:tuple/tuple.dart';
 import 'package:pong/ball.dart';
-import 'package:pong/brick.dart';
 import 'package:pong/welcomeScreen.dart';
 import 'package:pong/Player.dart';
 import 'package:pong/Paddle.dart';
@@ -118,9 +117,9 @@ class _DevHomePageState extends State<DevHomePage> {
         case stepResult.toMinus:
           logger.info("Upward ball: stepResult.toMinus.");
           assert(ballX == ballPos.x);
-          var just = 0;
-          if ((just = selfPlayer.catchBall(ballPos)) != 0) {
-            logger.info('self catch ball: ${just < 0 ? 'under' : 'over'}');
+          var just = catchResult.safe;
+          if ((just = selfPlayer.catchBall(ballPos)) != catchResult.safe) {
+            logger.info('self catch ball: ${just == catchResult.under ? 'under' : 'over'}: $just');
             enemyPlayer.score++;
             setState(() {
               enemyScore = enemyPlayer.score;
@@ -152,28 +151,22 @@ class _DevHomePageState extends State<DevHomePage> {
           break;
         case stepResult.toPlus:
           logger.info("Downward ball: stepResult.toPlus.");
-          var just = 0;
-          if ((just = enemyPlayer.catchBall(ballPos)) != 0) {
-            logger.info('enemy catch ball: ${just < 0 ? 'under' : 'over'}');
+          final meet = enemyPlayer.catchBall(ballPos);
+          switch(meet){
+            case catchResult.over:
+            case catchResult.under:
+            logger.info('enemy catch ball: ${meet == catchResult.under ? 'under' : 'over'}');
             selfPlayer.score++;
             setState(() {
               playerScore = selfPlayer.score;
             });
             timer.cancel();
             _showDialog(selfOrEnemyDied.enemyDied);
-          } else {
+            break;
+            default:
             vCount = 0;
             vInch = 0;
           }
-          /* else { 
-            final vPos = ballPos.jumpDown();
-            if (vPos != ballPos.x)
-              setState(() {
-                playerX = selfPlayer.x =
-                    vPos; // Player.calcBallArrivalPos(ballPos, startBall);
-                logger.info('playerX is set: $playerX');
-              }); 
-          } */
           break;
         default:
       }

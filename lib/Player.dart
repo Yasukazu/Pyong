@@ -8,7 +8,7 @@ class PlayerColor {
   static Color get self => Colors.pink;
   static Color get enemy => Colors.purple;
 }
-
+enum catchResult {over, safe, under}
 // Player class
 class Player {
   var _x = 0.0; // starting horizontal position
@@ -30,12 +30,12 @@ class Player {
   var diff = 0.0; // keep lost ball reach
   Player(this.y, this.color, this.width);
 
-  int catchBall(BallPos bp) {
-    final over = bp.x > (x + width / 2);
-    if (over) return 1;
-    final under = bp.x < (x - width / 2);
-    if (under) return -1;
-    return 0;
+  catchResult catchBall(BallPos bp) {
+    if (bp.x > x + width / 2)
+      return catchResult.over;
+    if (bp.x < x - width / 2)
+      return catchResult.under;
+    return catchResult.safe;
   }
 
   static double _calcBallArrivalPos2(x, dx, dy, side, away, {depth = 0}) {
