@@ -18,9 +18,9 @@ class Paddle extends StatelessWidget {
     logger.finer("width:$width,height:$height");
     logger.finer("swidth:${size.width},sheight:${size.height}");
     return Container(
-        alignment: Alignment(6.8, y),
+        alignment: Alignment.topLeft,
         height: size.height * height,
-        width: size.width * width,
+        width: size.width,
         child: CustomPaint(
           painter: RectPainter(size, x, width, height, color),
         ));
@@ -29,13 +29,14 @@ class Paddle extends StatelessWidget {
 
 class RectPainter extends CustomPainter {
   final Color color;
+  final Size size;
   final double _w;
   final double _h;
-  final Size size;
   final double _x;
-  double get w => size.width * _w;
-  double get h => size.height * _h;
-  double get x => _x * size.width;
+  double get x => (_x + offset) * size.width;
+  double get h => _h * size.height;
+  double get w => _w * size.width;
+  double get offset => 0.5 - _w / 2;
   RectPainter(this.size, this._x, this._w, this._h, this.color);
   @override
   void paint(Canvas canvas, Size size) {
