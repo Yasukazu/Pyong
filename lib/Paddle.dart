@@ -9,6 +9,7 @@ class Paddle extends StatelessWidget {
   Color get color => player.color;
   final Player player;
   double get height => Player.toBackwall;
+
   Paddle(this.player, this.x);
 
   @override
@@ -16,7 +17,7 @@ class Paddle extends StatelessWidget {
     final size = MediaQuery.of(context).size;
     logger.finer("x:$x, y:$y");
     logger.finer("width:$width,height:$height");
-    logger.finer("swidth:${size.width},sheight:${size.height}");
+    logger.finer("screen width:${size.width},screen height:${size.height}");
     return Container(
         alignment: Alignment(-1.0, y),
         height: size.height * height,

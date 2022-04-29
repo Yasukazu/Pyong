@@ -7,17 +7,18 @@ class Ball extends StatelessWidget {
   final x;
   final y;
   final Color color;
-  final double size;
-  Ball(this.x, this.y, {this.color = Colors.white, this.size = 20});
+  final double ratio;
+  Ball(this.x, this.y, [this.ratio = 0.1, this.color = Colors.white]);
 
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size.height;
     return Container(
       alignment: Alignment(x, y),
       child: Container(
         decoration: BoxDecoration(shape: BoxShape.circle, color: color),
-        width: size,
-        height: size,
+        width: ratio * size,
+        height: ratio * size,
       ),
     );
   }
@@ -40,12 +41,12 @@ class BallPos {
       {x = Bouncer.XDFLT,
       y = Bouncer.XDFLT,
       xf = CENTERTOSIDE,
-      yf = HOMETOAWAY / 2})
+      yf = CENTERTOPLAYER})
       : bX = FullBouncer(dx, wall: xf, x: x),
         bY = FullBouncer(dy, wall: yf, x: y);
 
   // angle[radian]
-  BallPos.withAngleDivider(double angle, int divider, {xf = 1.0, yf = 1.0})
+  BallPos.withAngleDivider(double angle, int divider, {xf = CENTERTOSIDE, yf = CENTERTOPLAYER})
       : bY = FullBouncer(1 / divider, wall: yf),
         bX = FullBouncer(tan(angle) / divider, wall: xf);
 

@@ -23,7 +23,7 @@ const PLAYERTOBACKWALL = 0.1;
 const CENTERTOPLAYER = 1.0;
 const PLAYERFROMCENTER = CENTERTOPLAYER - PLAYERTOBACKWALL;
 const HOMETOAWAY = 2 * (CENTERTOPLAYER - PLAYERTOBACKWALL);
-
+const BALLSIZE = 0.1;
 enum selfOrEnemyDied { selfDied, enemyDied }
 
 class _DevHomePageState extends State<DevHomePage> {
@@ -36,15 +36,6 @@ class _DevHomePageState extends State<DevHomePage> {
   final timerRep = 20; // ms
   double get ballMoveD => timerRep / awayToHomeTime;
   final rand = Random(DateTime.now().millisecondsSinceEpoch);
-  //player members for setState
-  double playerX = 0;
-  int playerScore = 0;
-  final selfPlayer = SelfPlayer(selfBrickWidth);
-
-  // enemy members for setState
-  double enemyX = 0;
-  int enemyScore = 0;
-  final enemyPlayer = EnemyPlayer(enemyBrickWidth);
 
   //ball members for setState
   double ballX = 0;
@@ -54,6 +45,16 @@ class _DevHomePageState extends State<DevHomePage> {
   var ballXDirection = direction.RIGHT;
   var gameStarted = false;
   final angleGenerator = RandAngleIterator(14); // degree
+
+  //player members for setState
+  double playerX = 0;
+  int playerScore = 0;
+  final selfPlayer = SelfPlayer(selfBrickWidth);
+
+  // enemy members for setState
+  double enemyX = 0;
+  int enemyScore = 0;
+  final enemyPlayer = EnemyPlayer(enemyBrickWidth);
 
   // virtual ball for debug
   double vallX = 0;
@@ -97,11 +98,7 @@ class _DevHomePageState extends State<DevHomePage> {
     int vCount = 0;
     Timer.periodic(Duration(milliseconds: timerRep), (timer) {
       final stepResults = ballPos.step();
-      setState(() {
-        // ball visual move
-        ballX = ballPos.x;
-        ballY = ballPos.y;
-      });
+
       if (vCount > 0) {
         enemyPlayer.x += vInch;
         vCount--;
@@ -117,9 +114,9 @@ class _DevHomePageState extends State<DevHomePage> {
         case stepResult.toMinus:
           logger.info("Upward ball: stepResult.toMinus.");
           assert(ballX == ballPos.x);
-          var just = catchResult.safe;
-          if ((just = selfPlayer.catchBall(ballPos)) != catchResult.safe) {
-            logger.info('self catch ball: ${just == catchResult.under ? 'under' : 'over'}: $just');
+          final just = selfPlayer.catchBall(ballX);
+          if (just.item1 != catchResult.safe) {
+            logger.info('self catch ball: ${just.item1 == catchResult.under ? 'under' : 'over'}: ${just.item2}');
             enemyPlayer.score++;
             setState(() {
               enemyScore = enemyPlayer.score;
@@ -151,11 +148,11 @@ class _DevHomePageState extends State<DevHomePage> {
           break;
         case stepResult.toPlus:
           logger.info("Downward ball: stepResult.toPlus.");
-          final meet = enemyPlayer.catchBall(ballPos);
-          switch(meet){
+          final meet = enemyPlayer.catchBall(ballX);
+          switch(meet.item1){
             case catchResult.over:
             case catchResult.under:
-            logger.info('enemy catch ball: ${meet == catchResult.under ? 'under' : 'over'}');
+            logger.info('enemy catch ball: ${meet.item1 == catchResult.under ? 'under' : 'over'}: ${meet.item2}');
             selfPlayer.score++;
             setState(() {
               playerScore = selfPlayer.score;
@@ -169,11 +166,17 @@ class _DevHomePageState extends State<DevHomePage> {
           }
           break;
         default:
+          break;
       }
       if (startBall) {
         startBall = false;
         logger.info('startBall is set false.');
       }
+      setState(() {
+        // ball visual move
+        ballX = ballPos.x;
+        ballY = ballPos.y;
+      });
     });
   }
 
@@ -284,24 +287,28 @@ class _DevHomePageState extends State<DevHomePage> {
   }
 
   void moveLeft() {
-    if (!(selfPlayer.x - moveLR - selfPlayer.width / 2 < -1)) {
-      selfPlayer.x -= moveLR;
+    var newX = 0.0;
+    if (!((selfPlayer.x - moveLR - selfPlayer.width / 2) < -1.0)) {
+      newX -= moveLR;
     } else {
-      selfPlayer.x = -1 + selfPlayer.width / 2;
+      newX = -1 + selfPlayer.width / 2;
     }
+    if (newX != selfPlayer.x)
     setState(() {
-      playerX = selfPlayer.x;
+      playerX = selfPlayer.x = newX;
     });
   }
 
   void moveRight() {
-    if (!(selfPlayer.x + moveLR + selfPlayer.width / 2 > 1)) {
-      selfPlayer.x += moveLR;
+    var newX = 0.0;
+    if (!((selfPlayer.x + moveLR + selfPlayer.width / 2) > 1.0)) {
+      newX += moveLR;
     } else {
-      selfPlayer.x = 1 - selfPlayer.width / 2;
+      newX = 1 - selfPlayer.width / 2;
     }
+    if(newX != selfPlayer.x)
     setState(() {
-      playerX = selfPlayer.x;
+      playerX = selfPlayer.x = newX;
     });
   }
 
@@ -331,9 +338,9 @@ class _DevHomePageState extends State<DevHomePage> {
                 //scoreboard
                 Score(gameStarted, enemyScore, playerScore),
                 // ball
-                Ball(ballX, ballY),
+                Ball(ballX, ballY, BALLSIZE),
                 // virtual ball
-                Ball(vallX, vallY, color: Colors.yellow, size: 5),
+                Ball(vallX, vallY, 0.02, Colors.yellow),
                 // self brick on bottom
                 Paddle(selfPlayer, playerX)
               ],

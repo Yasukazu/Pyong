@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pong/ball.dart';
 import 'package:pong/devHomePage.dart';
+import 'package:tuple/tuple.dart';
 
 enum players { SELF, ENEMY }
 
@@ -30,12 +31,16 @@ class Player {
   var diff = 0.0; // keep lost ball reach
   Player(this.y, this.color, this.width);
 
-  catchResult catchBall(BallPos bp) {
-    if (bp.x > x + width / 2)
-      return catchResult.over;
-    if (bp.x < x - width / 2)
-      return catchResult.under;
-    return catchResult.safe;
+  Tuple2<catchResult, double> catchBall(double bp) {
+    if (bp > (x + width / 2)) {
+      logger.fine("bp: $bp, x: $x, width: $width");
+      return Tuple2(catchResult.over, bp - (x + width / 2));
+    }
+    if (bp < (x - width / 2)) {
+      logger.fine("bp: $bp, x: $x, width: $width");
+      return Tuple2(catchResult.under, bp - (x - width / 2));
+    }
+    return Tuple2(catchResult.safe, 0);
   }
 
   static double _calcBallArrivalPos2(x, dx, dy, side, away, {depth = 0}) {
