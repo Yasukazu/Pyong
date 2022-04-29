@@ -342,7 +342,7 @@ class _DevHomePageState extends State<DevHomePage> {
                 // virtual ball
                 Ball(vallX, vallY, color: Colors.yellow, size: 5),
                 // self brick on bottom
-                Brick(selfPlayer, playerX)
+                Paddle(selfPlayer, playerX)
               ],
             ))),
       ),
