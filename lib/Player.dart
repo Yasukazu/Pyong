@@ -22,6 +22,7 @@ class Player {
       _x = d;
   }
 
+  static const toBackwall = PLAYERTOBACKWALL;
   final double y;
   var score = 0;
   final Color color;

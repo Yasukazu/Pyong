@@ -2,12 +2,13 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:logging/logging.dart';
+import 'package:tuple/tuple.dart';
 import 'package:pong/ball.dart';
 import 'package:pong/brick.dart';
 import 'package:pong/welcomeScreen.dart';
 import 'package:pong/Player.dart';
-import 'package:logging/logging.dart';
-import 'package:tuple/tuple.dart';
+import 'package:pong/Paddle.dart';
 
 final logger = Logger('devMainLogger');
 
@@ -54,44 +55,16 @@ class _DevHomePageState extends State<DevHomePage> {
   var ballXDirection = direction.RIGHT;
   var gameStarted = false;
   final angleGenerator = RandAngleIterator(14); // degree
-  double generateAngle() {
-    final anglePairList = [
-      [1.7, 1],
-      [1, 0.7]
-    ];
-    // final rand = new Random();
-    final elem = rand.nextInt(1);
-    final xy = anglePairList[elem];
-    return atan2(
-        xy[0] * (rand.nextBool() ? 1 : -1), xy[1] * (rand.nextBool() ? 1 : -1));
-  }
 
-  void resetPositions() {
-    setState(() {
-      playerX = selfPlayer.x = 0;
-      enemyX = enemyPlayer.x = 0;
-      ballX = 0;
-      ballY = 0;
-    });
-  }
+  // virtual ball for debug
+  double vallX = 0;
+  double vallY = 0;
 
-  /// try to find landing point; returns null if not found..
-  /* double? calcLandingPos(BallPos bp) {
-    BallPos vp = ballPos.clone();
-    StepResults? srs;
-    var limit = 10;
-    do {
-      srs = vp.jump();
-      if (srs == null) return null;
-    } while (srs.y == stepResult.keep && --limit > 0);
-    if (limit == 0) return null;
-    return vp.x;
-  } */
 
   void startGame() {
     gameStarted = true;
     final int divider = awayToHomeTime ~/ timerRep; // divide to get an integer
-    double angle = angleGenerator.current; // generateAngle();
+    double angle = angleGenerator.current;
     angleGenerator.moveNext();
     logger.info('angle: ${angle / pi * 180}');
     // degreeToRadian(40 + (startFromEnemy ? 180 : 0)); // radian from degree
@@ -159,6 +132,10 @@ class _DevHomePageState extends State<DevHomePage> {
           } else {
             final calculatedBallPos = ballPos.calcBallLandingPos();
             logger.fine("calculatedBallPos: $calculatedBallPos");
+            setState(() {
+              vallX = calculatedBallPos;
+              vallY = -PLAYERFROMCENTER;
+            });
             vPosAndCount = ballPos.jumpDown();
             vPos = vPosAndCount.item1;
             logger.fine("vPos: $vPos");
@@ -357,11 +334,13 @@ class _DevHomePageState extends State<DevHomePage> {
                 Welcome(gameStarted),
 
                 //enemy brick on top
-                Brick(enemyPlayer, enemyX),
+                Paddle(enemyPlayer, enemyX),
                 //scoreboard
                 Score(gameStarted, enemyScore, playerScore),
                 // ball
                 Ball(ballX, ballY),
+                // virtual ball
+                Ball(vallX, vallY, color: Colors.yellow, size: 5),
                 // self brick on bottom
                 Brick(selfPlayer, playerX)
               ],

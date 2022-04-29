@@ -6,16 +6,18 @@ import 'package:tuple/tuple.dart';
 class Ball extends StatelessWidget {
   final x;
   final y;
-  Ball(this.x, this.y);
+  final Color color;
+  final double size;
+  Ball(this.x, this.y, {this.color = Colors.white, this.size = 20});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       alignment: Alignment(x, y),
       child: Container(
-        decoration: BoxDecoration(shape: BoxShape.circle, color: Colors.white),
-        width: 20,
-        height: 20,
+        decoration: BoxDecoration(shape: BoxShape.circle, color: color),
+        width: size,
+        height: size,
       ),
     );
   }
@@ -87,7 +89,7 @@ class BallPos {
     final h2 = h * 2;
     final x2 = x + w; // offset +w
     final ft = dx / dy * h2;
-    final d = x2 + ((ft > 0) ? -ft : ft);
+    final d = x2 - ft;
     logger.fine("x2: $x2, ft: $ft, d: $d");
     if (d >= 0 && d <= w2) {
       logger.fine("d(x2 + ft): $d");
@@ -95,11 +97,11 @@ class BallPos {
     }
     // double hd = (d < 0) ? h * (ft - x) / ft : h * (x + ft - w2) / ft;
     if (d < 0) {
-      final ft2 = ft - x2;
+      final ft2 = ft.abs() - x2;
       logger.fine("ft2: $ft2");
       return ft2;
     }
-    final ft3 = x2 + ft - w2;
+    final ft3 = x2 + ft.abs() - w2;
     final ft4 = w2 - ft3;
     logger.fine("ft4: $ft4");
     return ft4;
