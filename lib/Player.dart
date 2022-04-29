@@ -29,9 +29,12 @@ class Player {
   final Color color;
   final double width;
   var diff = 0.0; // keep lost ball reach
+  double get leftEdge => -CENTERTOSIDE + width / 2;
+  double get rightEdge => CENTERTOSIDE - width / 2;
   Player(this.y, this.color, this.width);
 
-  Tuple2<catchResult, double> catchBall(double bp) {
+  Tuple2<catchResult, double> catchBall(double bp, double playerX) {
+    assert(playerX == x);
     if (bp > (x + width / 2)) {
       logger.fine("bp: $bp, x: $x, width: $width");
       return Tuple2(catchResult.over, bp - (x + width / 2));

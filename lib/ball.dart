@@ -8,7 +8,8 @@ class Ball extends StatelessWidget {
   final y;
   final Color color;
   final double ratio;
-  Ball(this.x, this.y, [this.ratio = 0.1, this.color = Colors.white]);
+  final BoxShape shape;
+  Ball(this.x, this.y, [this.ratio = 0.1, this.color = Colors.white, this.shape = BoxShape.circle]);
 
   @override
   Widget build(BuildContext context) {
@@ -16,7 +17,7 @@ class Ball extends StatelessWidget {
     return Container(
       alignment: Alignment(x, y),
       child: Container(
-        decoration: BoxDecoration(shape: BoxShape.circle, color: color),
+        decoration: BoxDecoration(shape: shape, color: color),
         width: ratio * size,
         height: ratio * size,
       ),

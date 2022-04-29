@@ -3,6 +3,7 @@ import 'package:pong/Player.dart';
 import 'package:pong/devHomePage.dart';
 
 class Paddle extends StatelessWidget {
+  static const margin = 0.02;
   final double x;
   double get y => player.y;
   double get width => player.width;
@@ -19,8 +20,8 @@ class Paddle extends StatelessWidget {
     logger.finer("width:$width,height:$height");
     logger.finer("screen width:${size.width},screen height:${size.height}");
     return Container(
-        alignment: Alignment(-1.0, y),
-        height: size.height * height,
+        alignment: Alignment(-CENTERTOSIDE, y),
+        height: size.height * (height - margin),
         width: size.width,
         child: CustomPaint(
           painter: RectPainter(size, x, y, width, height, color),
