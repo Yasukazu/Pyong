@@ -9,6 +9,8 @@ class Ball extends StatelessWidget {
   final Color color;
   final double ratio;
   final BoxShape shape;
+
+  /// args: x, y, ratio, color, shape,
   Ball(this.x, this.y, [this.ratio = 0.1, this.color = Colors.white, this.shape = BoxShape.circle]);
 
   @override
@@ -16,11 +18,26 @@ class Ball extends StatelessWidget {
     final size = MediaQuery.of(context).size.height;
     return Container(
       alignment: Alignment(x, y),
-      child: Container(
-        decoration: BoxDecoration(shape: shape, color: color),
-        width: ratio * size,
-        height: ratio * size,
-      ),
+      child: Stack(children: [
+        Positioned.fill(
+          child: Align(
+        alignment: Alignment.center,
+        child:
+        Container(
+          decoration: BoxDecoration(shape: shape, color: color),
+          width: ratio * size,
+          height: ratio * size,
+        ),),),
+        Positioned.fill(
+          child:Align(
+            alignment: Alignment.center,
+            child:
+        Container(
+          decoration: BoxDecoration(shape: shape, color: Colors.black),
+          width: ratio * size * 0.5,
+          height: ratio * size * 0.5,
+        ), ), ),
+      ])
     );
   }
 }

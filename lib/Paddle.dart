@@ -4,14 +4,20 @@ import 'package:pong/devHomePage.dart';
 
 class Paddle extends StatelessWidget {
   static const margin = 0.02;
-  final double x;
+  final double _x;
+  double get x => _x;
   double get y => player.y;
-  double get width => player.width;
-  Color get color => player.color;
+  double get width => _xRatio * player.width;
+  Color get color => (_xRatio == 1) ? player.color : Colors.black;
   final Player player;
-  double get height => Player.toBackwall;
+  double get height => _yRatio * Player.toBackwall;
+  late final double _xRatio;
+  late final double _yRatio;
 
-  Paddle(this.player, this.x);
+  Paddle(this.player, this._x, [xRatio = 1.0, yRatio = 1.0]) {
+    _xRatio = xRatio;
+    _yRatio = yRatio;
+  }
 
   @override
   Widget build(BuildContext context) {

@@ -47,11 +47,14 @@ class _DevHomePageState extends State<DevHomePage> {
   final angleGenerator = RandAngleIterator(14); // degree
 
   //player members for setState
+  final playerSize = selfBrickWidth;
+  final playerY = PLAYERFROMCENTER - selfBrickWidth / 2;
   double playerX = 0;
   int playerScore = 0;
   final selfPlayer = SelfPlayer(selfBrickWidth);
 
   // enemy members for setState
+  final enemyY = -PLAYERFROMCENTER;
   double enemyX = 0;
   int enemyScore = 0;
   final enemyPlayer = EnemyPlayer(enemyBrickWidth);
@@ -76,8 +79,8 @@ class _DevHomePageState extends State<DevHomePage> {
         ballPos.jumpDown(); // calcLandingPos(ballPos);
     double ballArrivalPos = ballArrivalPosAndCount.item1;
     // final ballArrivalPos = Player.calcBallArrivalPos(ballPos, gameStarted);
-    if (ballArrivalPos != ballPos.x) {
-      logger.info('ballArrivalPos 1st: $ballArrivalPos');
+    if ((ballArrivalPos - ballPos.x).abs() > 0.1) {
+      logger.info("Moving 'cause ballArrivalPos differs more than 0.1 from ball positio1stn: $ballArrivalPos");
       if (ballPos.dy > 0) {
         setState(() {
           playerX = selfPlayer.x = ballArrivalPos;
@@ -116,11 +119,11 @@ class _DevHomePageState extends State<DevHomePage> {
       }
       switch (stepResults.y) {
         case stepResult.toMinus:
-          logger.info("Upward ball: stepResult.toMinus.");
+          logger.info("Upward ball: $ballX, player: $playerX");
           assert(ballX == ballPos.x);
           final meet = selfPlayer.catchBall(ballX, playerX);
           if (meet.item1 != catchResult.safe) {
-            logger.info('self meet ball: ${meet.item1 == catchResult.under ? 'under' : 'over'}: ${meet.item2}');
+            logger.info('self meet ball: ${meet.item1 == catchResult.under ? 'under' : 'over'}: ${meet.item2 + ballX}');
             enemyPlayer.score++;
             setState(() {
               enemyScore = enemyPlayer.score;
@@ -330,14 +333,19 @@ class _DevHomePageState extends State<DevHomePage> {
                 Welcome(gameStarted),
 
                 //enemy brick on top
-                Paddle(enemyPlayer, enemyX),
+                Paddle(enemyPlayer, enemyX, 1.0, 0.4),
+                Paddle(enemyPlayer, enemyX + enemyPlayer.width/2, 0.2, 0.2),
                 //scoreboard
                 Score(gameStarted, enemyScore, playerScore),
                 // ball
                 Ball(ballX, ballY, BALLSIZE),
+                // Ball(ballX, ballY, BALLSIZE - 0.01, Colors.black),
                 // self brick on bottom
                 //Paddle(selfPlayer, playerX),
-                Ball(playerX, 0.9, selfBrickWidth, Colors.pink, BoxShape.rectangle),
+                Paddle(selfPlayer, playerX, 1.0, 0.4),
+                // Paddle(selfPlayer, playerX + selfPlayer.width/2, 0.2, 0.2),
+                // Ball(playerX, playerY/2, selfBrickWidth, Colors.pink, BoxShape.circle),
+                // Ball(playerX, playerY/2, selfBrickWidth - 0.05, Colors.black, BoxShape.circle),
                 // virtual ball
                 Ball(vallX, vallY, 0.02, Colors.yellow),
 
