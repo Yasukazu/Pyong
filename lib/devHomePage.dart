@@ -122,7 +122,7 @@ class _DevHomePageState extends State<DevHomePage> {
         case stepResult.toMinus:
           logger.info("Upward ball: $ballX, player: $playerX");
           assert(ballX == ballPos.x);
-          final meet = catchBall(ballX, playerX, selfPlayer.width);
+          final meet = ballCatch(ballX, playerX, selfPlayer.width);
           if (meet.item1 != catchResult.safe) {
             logger.info('self meet ball: ${meet.item1 == catchResult.under ? 'under' : 'over'}: ${meet.item2 + ballX}');
             enemyPlayer.score++;
@@ -156,7 +156,7 @@ class _DevHomePageState extends State<DevHomePage> {
           break;
         case stepResult.toPlus:
           logger.info("Downward ball: stepResult.toPlus.");
-          final meet = catchBall(ballX, enemyX, enemyPlayer.width);
+          final meet = ballCatch(ballX, enemyX, enemyPlayer.width);
           switch(meet.item1){
             case catchResult.over:
             case catchResult.under:
@@ -394,7 +394,7 @@ class Score extends StatelessWidget {
         : Container();
   }
 }
-Tuple2<catchResult, double> catchBall(double bp, double playerX, double width) {
+Tuple2<catchResult, double> ballCatch(double bp, double playerX, double width) {
   if (bp > (playerX + width / 2)) {
     logger.fine("bp: $bp, playerX: $playerX, width: $width");
     return Tuple2(catchResult.over, bp - (playerX + width / 2));
