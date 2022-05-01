@@ -31,13 +31,13 @@ class _HomePageState extends State<HomePage> {
   final timerRep = 20; // ms
   double get ballMoveD => timerRep / awayToHomeTime;
   //player variations
-  // double playerX = -0.2;
+  double playerX = -0.2;
   int playerScore = 0;
   final selfPlayer =
       SelfPlayer(-0.9); // Colors.pink.shade300);
 
   // enemy variable
-  // double enemyX = -0.2;
+  double enemyX = -0.2;
   int enemyScore = 0;
   final enemyPlayer =
       EnemyPlayer(0.9); // Colors.purple.shade500);
@@ -231,13 +231,13 @@ class _HomePageState extends State<HomePage> {
                 Welcome(gameStarted),
 
                 //enemy brick on top
-                Brick(enemyPlayer, enemyPlayer.x),
+                Brick(enemyPlayer, enemyX, 0.9),
                 //scoreboard
                 Score(gameStarted, enemyScore, playerScore),
                 // ball
                 Ball(ballx, bally),
                 // self brick on bottom 
-                Brick(selfPlayer, selfPlayer.x)
+                Brick(selfPlayer, playerX, -0.9)
               ],
             ))),
       ),

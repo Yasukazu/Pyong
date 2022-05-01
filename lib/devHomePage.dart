@@ -72,7 +72,7 @@ class _DevHomePageState extends State<DevHomePage> {
     angleGenerator.moveNext();
     logger.info('angle: ${angle / pi * 180}');
     // degreeToRadian(40 + (startFromEnemy ? 180 : 0)); // radian from degree
-    ballPos = BallPos.withAngleDivider(angle, divider, yf: PLAYERFROMCENTER - selfBrickWidth * 2);
+    ballPos = BallPos.withAngleDivider(angle, divider, yf: PLAYERFROMCENTER); // - selfBrickWidth * 2);
     logger.info(
         'ballPos: x=${ballPos.x}, y=${ballPos.y}, dx=${ballPos.dx}, dy=${ballPos.dy}');
     var startBall = true;
