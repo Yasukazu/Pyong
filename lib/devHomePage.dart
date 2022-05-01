@@ -122,7 +122,7 @@ class _DevHomePageState extends State<DevHomePage> {
         case stepResult.toMinus:
           logger.info("Upward ball: $ballX, player: $playerX");
           assert(ballX == ballPos.x);
-          final meet = ballCatch(ballX, playerX, selfPlayer.width);
+          final meet = ballCatch(ballX, players.SELF);
           if (meet.item1 != catchResult.safe) {
             logger.info('self meet ball: ${meet.item1 == catchResult.under ? 'under' : 'over'}: ${meet.item2 + ballX}');
             enemyPlayer.score++;
@@ -156,7 +156,7 @@ class _DevHomePageState extends State<DevHomePage> {
           break;
         case stepResult.toPlus:
           logger.info("Downward ball: stepResult.toPlus.");
-          final meet = ballCatch(ballX, enemyX, enemyPlayer.width);
+          final meet = ballCatch(ballX, players.ENEMY);
           switch(meet.item1){
             case catchResult.over:
             case catchResult.under:
@@ -354,6 +354,20 @@ class _DevHomePageState extends State<DevHomePage> {
       ),
     );
   }
+  Tuple2<catchResult, double> ballCatch(double bp, players player) {
+    final x = (player == players.SELF) ? playerX : enemyX;
+    final w = (player == players.SELF) ? selfPlayer.width : enemyPlayer.width;
+    final e = SIDETOSIDE * w / 2;
+    if (bp > (x + e)) {
+      logger.fine("bp: $bp, x: $x, e: $e, x + e: ${x + e}, bp-(x+e):${bp-(x+e)}");
+      return Tuple2(catchResult.over, bp - (x + e));
+    }
+    if (bp < (x - e)) {
+      logger.fine("bp: $bp, x: $x, e: $e, x - e: ${x - e}, bp-(x-e):${bp-(x-e)}");
+      return Tuple2(catchResult.under, bp - (x - e));
+    }
+    return Tuple2(catchResult.safe, 0);
+  }
 }
 
 class Score extends StatelessWidget {
@@ -393,15 +407,5 @@ class Score extends StatelessWidget {
         : Container();
   }
 }
-Tuple2<catchResult, double> ballCatch(double bp, double playerX, double width) {
-  if (bp > (playerX + width / 2)) {
-    logger.fine("bp: $bp, playerX: $playerX, width: $width");
-    return Tuple2(catchResult.over, bp - (playerX + width / 2));
-  }
-  if (bp < (playerX - width / 2)) {
-    logger.fine("bp: $bp, playerX: $playerX, width: $width");
-    return Tuple2(catchResult.under, bp - (playerX - width / 2));
-  }
-  return Tuple2(catchResult.safe, 0);
-}
+
 degreeToRadian(a) => a / 360 * 2 * pi;

@@ -27,10 +27,10 @@ class Player {
   final double y;
   var score = 0;
   final Color color;
-  final double width;
+  final double width; // ratio to screen
 var diff = 0.0; // keep lost ball reach
-  double get leftEdge => -CENTERTOSIDE + width / 2;
-  double get rightEdge => CENTERTOSIDE - width / 2;
+  double get leftEdge => -CENTERTOSIDE + SIDETOSIDE * width / 2;
+  double get rightEdge => CENTERTOSIDE - SIDETOSIDE * width / 2;
   Player(this.y, this.color, this.width);
 
   Tuple2<catchResult, double> catchBall(double bp, double playerX) {

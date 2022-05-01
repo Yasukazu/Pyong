@@ -5,7 +5,7 @@ class Brick extends StatelessWidget {
   final double x;
   final double _y;
   double get y => _y; //player.y;
-  double get brickWidth => player.width;
+  double get brickWidth => player.width; // ratio to screen
   Color get color => player.color;
   final Player player;
   Brick(this.player, this.x, this._y);
@@ -18,19 +18,17 @@ class Brick extends StatelessWidget {
             child: ClipRect(
           // center: Offset(x - brickWidth / 2, 0),
           // borderRadius: BorderRadius.circular(10),
-          child: Stack(children: [
-            Positioned.fill(child: Align(alignment:Alignment(x, y), child: Container(
-            alignment: Alignment(x, y),
+          child: Stack( alignment: AlignmentDirectional.center, children: [
+          Container(
             color: color, // isEnemy ? PlayerColor.enemy : PlayerColor.self, //Colors.purple[500] : Colors.pink[300],
             height: 20,
             width: MediaQuery.of(context).size.width * brickWidth
-          ),),),
-          Positioned.fill(child: Align(alignment:Alignment(x, y), child: Container(
-          alignment: Alignment(x, y),
+          ),
+          Container(
           color: Colors.black, // isEnemy ? PlayerColor.enemy : PlayerColor.self, //Colors.purple[500] : Colors.pink[300],
           height: 10,
           width: MediaQuery.of(context).size.width * brickWidth / 4
-      ),),),
+      ),
         ])));
   }
 }
