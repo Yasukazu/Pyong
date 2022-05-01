@@ -28,7 +28,7 @@ class Player {
   var score = 0;
   final Color color;
   final double width;
-  var diff = 0.0; // keep lost ball reach
+var diff = 0.0; // keep lost ball reach
   double get leftEdge => -CENTERTOSIDE + width / 2;
   double get rightEdge => CENTERTOSIDE - width / 2;
   Player(this.y, this.color, this.width);

@@ -25,6 +25,7 @@ const CENTERTOPLAYER = 1.0;
 const PLAYERFROMCENTER = CENTERTOPLAYER - PLAYERTOBACKWALL;
 const HOMETOAWAY = 2 * (CENTERTOPLAYER - PLAYERTOBACKWALL);
 const BALLSIZE = 0.04;
+const moveLR = 0.2; // move length of moveLeft and moveRight
 enum selfOrEnemyDied { selfDied, enemyDied }
 
 class _DevHomePageState extends State<DevHomePage> {
@@ -32,7 +33,6 @@ class _DevHomePageState extends State<DevHomePage> {
   // common params:
   static const selfBrickWidth = 0.4;
   static const enemyBrickWidth = 0.2;
-  final moveLR = 0.2; // move length of moveLeft and moveRight
   int awayToHomeTime = 1000; // miliseconds
   final timerRep = 20; // ms
   double get ballMoveD => timerRep / awayToHomeTime;
@@ -291,10 +291,10 @@ class _DevHomePageState extends State<DevHomePage> {
   }
 
   void moveLeft() {
-    var newX = selfPlayer.x;
-    if (!((selfPlayer.x - moveLR) < selfPlayer.leftEdge)) {
-      newX -= moveLR;
-    }
+    if (selfPlayer.x == selfPlayer.leftEdge)
+      return;
+    var newX = ((selfPlayer.x - moveLR) < selfPlayer.leftEdge) ?
+      selfPlayer.leftEdge : selfPlayer.x - moveLR;
     if (newX != selfPlayer.x)
     setState(() {
       playerX = selfPlayer.x = newX;
@@ -302,10 +302,10 @@ class _DevHomePageState extends State<DevHomePage> {
   }
 
   void moveRight() {
-    var newX = selfPlayer.x;
-    if (!((selfPlayer.x + moveLR) > selfPlayer.rightEdge)) {
-      newX += moveLR;
-    }
+    if (selfPlayer.x == selfPlayer.rightEdge)
+      return;
+    var newX = ((selfPlayer.x + moveLR) > selfPlayer.rightEdge) ?
+        selfPlayer.rightEdge : selfPlayer.x + moveLR;
     if(newX != selfPlayer.x)
     setState(() {
       playerX = selfPlayer.x = newX;
@@ -333,15 +333,14 @@ class _DevHomePageState extends State<DevHomePage> {
               children: [
                 Welcome(gameStarted),
                 //enemy brick on top
+                Score(gameStarted, enemyScore, playerScore),
+                // self brick on bottom
                 Brick(enemyPlayer, enemyX, -0.9),
                 // Paddle(enemyPlayer, enemyX + enemyPlayer.width/2, 0.2, 0.2),
                 //scoreboard
-                Score(gameStarted, enemyScore, playerScore),
+                Brick(selfPlayer, playerX, 0.9),
                 // ball
                 Ball(ballX, ballY, BALLSIZE),
-                // Ball(ballX, ballY, BALLSIZE - 0.01, Colors.black),
-                // self brick on bottom
-                Brick(selfPlayer, playerX, 0.9),
                 //Paddle(selfPlayer, playerX),
                 //Paddle(selfPlayer, playerX, 1.0, 0.4),
                 // Paddle(selfPlayer, playerX + selfPlayer.width/2, 0.2, 0.2),
