@@ -7,7 +7,7 @@ import 'package:tuple/tuple.dart';
 import 'package:pong/ball.dart';
 import 'package:pong/welcomeScreen.dart';
 import 'package:pong/Player.dart';
-import 'package:pong/Paddle.dart';
+import 'package:pong/brick.dart';
 
 final logger = Logger('devMainLogger');
 
@@ -19,6 +19,7 @@ class DevHomePage extends StatefulWidget {
 enum direction { UP, DOWN, LEFT, RIGHT }
 
 const CENTERTOSIDE = 1.0;
+const SIDETOSIDE = 2 * CENTERTOSIDE;
 const PLAYERTOBACKWALL = 0.1;
 const CENTERTOPLAYER = 1.0;
 const PLAYERFROMCENTER = CENTERTOPLAYER - PLAYERTOBACKWALL;
@@ -29,8 +30,8 @@ enum selfOrEnemyDied { selfDied, enemyDied }
 class _DevHomePageState extends State<DevHomePage> {
   //LOGIC
   // common params:
-  static const selfBrickWidth = 0.1;
-  static const enemyBrickWidth = 0.1;
+  static const selfBrickWidth = 0.4;
+  static const enemyBrickWidth = 0.2;
   final moveLR = 0.2; // move length of moveLeft and moveRight
   int awayToHomeTime = 1000; // miliseconds
   final timerRep = 20; // ms
@@ -121,7 +122,7 @@ class _DevHomePageState extends State<DevHomePage> {
         case stepResult.toMinus:
           logger.info("Upward ball: $ballX, player: $playerX");
           assert(ballX == ballPos.x);
-          final meet = selfPlayer.catchBall(ballX, playerX);
+          final meet = catchBall(ballX, playerX, selfPlayer.width);
           if (meet.item1 != catchResult.safe) {
             logger.info('self meet ball: ${meet.item1 == catchResult.under ? 'under' : 'over'}: ${meet.item2 + ballX}');
             enemyPlayer.score++;
@@ -155,7 +156,7 @@ class _DevHomePageState extends State<DevHomePage> {
           break;
         case stepResult.toPlus:
           logger.info("Downward ball: stepResult.toPlus.");
-          final meet = enemyPlayer.catchBall(ballX, playerX);
+          final meet = catchBall(ballX, enemyX, enemyPlayer.width);
           switch(meet.item1){
             case catchResult.over:
             case catchResult.under:
@@ -331,23 +332,23 @@ class _DevHomePageState extends State<DevHomePage> {
                 child: Stack(
               children: [
                 Welcome(gameStarted),
-
                 //enemy brick on top
-                Paddle(enemyPlayer, enemyX, 1.0, 0.4),
-                Paddle(enemyPlayer, enemyX + enemyPlayer.width/2, 0.2, 0.2),
+                Brick(enemyPlayer, enemyX, -0.9),
+                // Paddle(enemyPlayer, enemyX + enemyPlayer.width/2, 0.2, 0.2),
                 //scoreboard
                 Score(gameStarted, enemyScore, playerScore),
                 // ball
                 Ball(ballX, ballY, BALLSIZE),
                 // Ball(ballX, ballY, BALLSIZE - 0.01, Colors.black),
                 // self brick on bottom
+                Brick(selfPlayer, playerX, 0.9),
                 //Paddle(selfPlayer, playerX),
-                Paddle(selfPlayer, playerX, 1.0, 0.4),
+                //Paddle(selfPlayer, playerX, 1.0, 0.4),
                 // Paddle(selfPlayer, playerX + selfPlayer.width/2, 0.2, 0.2),
                 // Ball(playerX, playerY/2, selfBrickWidth, Colors.pink, BoxShape.circle),
                 // Ball(playerX, playerY/2, selfBrickWidth - 0.05, Colors.black, BoxShape.circle),
                 // virtual ball
-                Ball(vallX, vallY, 0.02, Colors.yellow),
+                //Ball(vallX, vallY, 0.02, Colors.yellow),
 
               ],
             ))),
@@ -393,5 +394,15 @@ class Score extends StatelessWidget {
         : Container();
   }
 }
-
+Tuple2<catchResult, double> catchBall(double bp, double playerX, double width) {
+  if (bp > (playerX + width / 2)) {
+    logger.fine("bp: $bp, playerX: $playerX, width: $width");
+    return Tuple2(catchResult.over, bp - (playerX + width / 2));
+  }
+  if (bp < (playerX - width / 2)) {
+    logger.fine("bp: $bp, playerX: $playerX, width: $width");
+    return Tuple2(catchResult.under, bp - (playerX - width / 2));
+  }
+  return Tuple2(catchResult.safe, 0);
+}
 degreeToRadian(a) => a / 360 * 2 * pi;

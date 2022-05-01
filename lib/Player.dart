@@ -34,14 +34,14 @@ class Player {
   Player(this.y, this.color, this.width);
 
   Tuple2<catchResult, double> catchBall(double bp, double playerX) {
-    assert(playerX == x);
-    if (bp > (x + width / 2)) {
-      logger.fine("bp: $bp, x: $x, width: $width");
-      return Tuple2(catchResult.over, bp - (x + width / 2));
+    assert(playerX == playerX);
+    if (bp > (playerX + width / 2)) {
+      logger.fine("bp: $bp, playerX: $playerX, width: $width");
+      return Tuple2(catchResult.over, bp - (playerX + width / 2));
     }
-    if (bp < (x - width / 2)) {
-      logger.fine("bp: $bp, x: $x, width: $width");
-      return Tuple2(catchResult.under, bp - (x - width / 2));
+    if (bp < (playerX - width / 2)) {
+      logger.fine("bp: $bp, playerX: $playerX, width: $width");
+      return Tuple2(catchResult.under, bp - (playerX - width / 2));
     }
     return Tuple2(catchResult.safe, 0);
   }
