@@ -18,19 +18,19 @@ class Ball extends StatelessWidget {
     final size = MediaQuery.of(context).size.height;
     return Container(
       alignment: Alignment(x, y),
-      child: Stack(children: [
-        Positioned.fill( child: Align( alignment: Alignment(x, y), child:
+      child: Stack(
+        alignment: AlignmentDirectional.center,
+          children: [
         Container(
           decoration: BoxDecoration(shape: shape, color: color),
           width: ratio * size,
           height: ratio * size,
-        ),),),
-        Positioned.fill( child:Align( alignment: Alignment(x, y), child:
+        ),
         Container(
           decoration: BoxDecoration(shape: shape, color: Colors.black),
           width: ratio * size * 0.5,
           height: ratio * size * 0.5,
-        ), ), ),
+        ),
       ])
     );
   }
