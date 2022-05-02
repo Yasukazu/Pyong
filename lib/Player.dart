@@ -27,21 +27,21 @@ class Player {
   final double y;
   var score = 0;
   final Color color;
-  final double width; // ratio to screen
+  final double width; // ratio to screen half width
 var diff = 0.0; // keep lost ball reach
-  double get leftEdge => -CENTERTOSIDE + SIDETOSIDE * width / 2;
-  double get rightEdge => CENTERTOSIDE - SIDETOSIDE * width / 2;
+  double get leftLimit => -CENTERTOSIDE + width;
+  double get rightLimit => CENTERTOSIDE - width;
   Player(this.y, this.color, this.width);
 
   Tuple2<catchResult, double> catchBall(double bp, double playerX) {
     assert(playerX == playerX);
-    if (bp > (playerX + width / 2)) {
+    if (bp > (playerX + width)) {
       logger.fine("bp: $bp, playerX: $playerX, width: $width");
-      return Tuple2(catchResult.over, bp - (playerX + width / 2));
+      return Tuple2(catchResult.over, bp - (playerX + width));
     }
-    if (bp < (playerX - width / 2)) {
+    if (bp < (playerX - width)) {
       logger.fine("bp: $bp, playerX: $playerX, width: $width");
-      return Tuple2(catchResult.under, bp - (playerX - width / 2));
+      return Tuple2(catchResult.under, bp - (playerX - width));
     }
     return Tuple2(catchResult.safe, 0);
   }

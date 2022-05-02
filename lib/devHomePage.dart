@@ -8,6 +8,7 @@ import 'package:pong/ball.dart';
 import 'package:pong/welcomeScreen.dart';
 import 'package:pong/Player.dart';
 import 'package:pong/brick.dart';
+import 'package:pong/Status.dart';
 
 final logger = Logger('devMainLogger');
 
@@ -31,14 +32,14 @@ enum selfOrEnemyDied { selfDied, enemyDied }
 class _DevHomePageState extends State<DevHomePage> {
   //LOGIC
   // common params:
-  static const selfBrickWidth = 0.4;
-  static const enemyBrickWidth = 0.2;
+  static const playerHRatio = 0.1; // per 1.0
   int awayToHomeTime = 1000; // miliseconds
   final timerRep = 20; // ms
   double get ballMoveD => timerRep / awayToHomeTime;
   final rand = Random(DateTime.now().millisecondsSinceEpoch);
 
   //ball members for setState
+  final ballSize = BALLSIZE;
   double ballX = 0;
   double ballY = 0;
   var ballPos = BallPos(0, 0);
@@ -48,17 +49,18 @@ class _DevHomePageState extends State<DevHomePage> {
   final angleGenerator = RandAngleIterator(14); // degree
 
   //player members for setState
-  final playerSize = selfBrickWidth;
-  final playerY = PLAYERFROMCENTER - selfBrickWidth / 2;
+  static const selfPlayerWRatio = 0.2; // per 1.0
+  final playerY = PLAYERFROMCENTER - playerHRatio;
   double playerX = 0;
   int playerScore = 0;
-  final selfPlayer = SelfPlayer(selfBrickWidth);
+  final selfPlayer = SelfPlayer(selfPlayerWRatio);
 
   // enemy members for setState
-  final enemyY = -PLAYERFROMCENTER;
+  static const enemyPlayerWRatio = 0.05; // per 1.0
+  final enemyY = -PLAYERFROMCENTER + playerHRatio;
   double enemyX = 0;
   int enemyScore = 0;
-  final enemyPlayer = EnemyPlayer(enemyBrickWidth);
+  final enemyPlayer = EnemyPlayer(enemyPlayerWRatio);
 
   // virtual ball for debug
   double vallX = 0;
@@ -72,7 +74,7 @@ class _DevHomePageState extends State<DevHomePage> {
     angleGenerator.moveNext();
     logger.info('angle: ${angle / pi * 180}');
     // degreeToRadian(40 + (startFromEnemy ? 180 : 0)); // radian from degree
-    ballPos = BallPos.withAngleDivider(angle, divider, yf: PLAYERFROMCENTER); // - selfBrickWidth * 2);
+    ballPos = BallPos.withAngleDivider(angle, divider, yf: PLAYERFROMCENTER - ballSize / 2); //  - Brick.height / 2); // - selfPlayerWRatio * 2);
     logger.info(
         'ballPos: x=${ballPos.x}, y=${ballPos.y}, dx=${ballPos.dx}, dy=${ballPos.dy}');
     var startBall = true;
@@ -255,7 +257,7 @@ class _DevHomePageState extends State<DevHomePage> {
   void resetGame() {
     Navigator.pop(context);
     setState(() {
-      gameStarted = true;
+      gameStarted = false;  // inform to draw welcomeScreen
       ballX = 0;
       ballY = 0;
       playerX = selfPlayer.x = 0;
@@ -290,22 +292,22 @@ class _DevHomePageState extends State<DevHomePage> {
     });
   }
 
-  void moveLeft() {
-    if (selfPlayer.x == selfPlayer.leftEdge)
+  void moveLeft([bool shift = false]) {
+    if (selfPlayer.x == selfPlayer.leftLimit)
       return;
-    var newX = ((selfPlayer.x - moveLR) < selfPlayer.leftEdge) ?
-      selfPlayer.leftEdge : selfPlayer.x - moveLR;
+    var newX = ((selfPlayer.x - moveLR) < selfPlayer.leftLimit) ?
+      selfPlayer.leftLimit : selfPlayer.x - moveLR;
     if (newX != selfPlayer.x)
     setState(() {
       playerX = selfPlayer.x = newX;
     });
   }
 
-  void moveRight() {
-    if (selfPlayer.x == selfPlayer.rightEdge)
+  void moveRight([bool shift = false]) {
+    if (selfPlayer.x == selfPlayer.rightLimit)
       return;
-    var newX = ((selfPlayer.x + moveLR) > selfPlayer.rightEdge) ?
-        selfPlayer.rightEdge : selfPlayer.x + moveLR;
+    var newX = ((selfPlayer.x + moveLR) > selfPlayer.rightLimit) ?
+        selfPlayer.rightLimit : selfPlayer.x + moveLR;
     if(newX != selfPlayer.x)
     setState(() {
       playerX = selfPlayer.x = newX;
@@ -322,33 +324,32 @@ class _DevHomePageState extends State<DevHomePage> {
           moveLeft();
         } else if (event.isKeyPressed(LogicalKeyboardKey.arrowRight)) {
           moveRight();
-        }
-      },
-      child: GestureDetector(
+        } else if (event.isKeyPressed(LogicalKeyboardKey.shiftLeft)) {
+          moveLeft(true);
+    }
+       else if (event.isKeyPressed(LogicalKeyboardKey.shiftRight)) {
+    moveRight(true);
+    }
+  },
+  child: GestureDetector(
         onTap: startGame,
         child: Scaffold(
             backgroundColor: Colors.grey[900],
             body: Center(
                 child: Stack(
               children: [
-                Welcome(gameStarted),
-                //enemy brick on top
-                Score(gameStarted, enemyScore, playerScore),
-                // self brick on bottom
-                Brick(enemyPlayer, enemyX, -0.9),
-                // Paddle(enemyPlayer, enemyX + enemyPlayer.width/2, 0.2, 0.2),
                 //scoreboard
+                Score(gameStarted, enemyScore, playerScore),
+                //enemy brick on top
+                Brick(enemyPlayer, enemyX, -0.9),
+                // self brick on bottom
                 Brick(selfPlayer, playerX, 0.9),
                 // ball
                 Ball(ballX, ballY, BALLSIZE),
-                //Paddle(selfPlayer, playerX),
-                //Paddle(selfPlayer, playerX, 1.0, 0.4),
-                // Paddle(selfPlayer, playerX + selfPlayer.width/2, 0.2, 0.2),
-                // Ball(playerX, playerY/2, selfBrickWidth, Colors.pink, BoxShape.circle),
-                // Ball(playerX, playerY/2, selfBrickWidth - 0.05, Colors.black, BoxShape.circle),
-                // virtual ball
-                //Ball(vallX, vallY, 0.02, Colors.yellow),
-
+                // "Tap to start"
+                Welcome(gameStarted),
+                // status
+                Status(enemyX, playerX),
               ],
             ))),
       ),

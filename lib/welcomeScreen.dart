@@ -10,7 +10,7 @@ class Welcome extends StatelessWidget {
     return Container(
         alignment: Alignment(0, -0.2),
         child: Text(
-         gameStarted ? "": "T A P   T O   P L A Y",
+         gameStarted ? "": "<< Tap to play >>",
           style: TextStyle(color: Colors.white),
         ));
   }
